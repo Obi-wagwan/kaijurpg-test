@@ -830,16 +830,20 @@
     if (energy < 1) return false;
 
     if (name === "Green Herb") return true;
+    if (name === "Copper Ore") return true;
 
     if (name === "Green Potion") {
       return hasItem("Green Herb", 10) || hasItem("Mature Green Herb", 5);
     }
 
-    if (name === "Copper Ore") return true;
     if (name === "Copper Bar") return hasItem("Copper Ore", 10);
     if (name === "Copper Helmet") return hasItem("Copper Bar", 5);
     if (name === "Copper Armor") return hasItem("Copper Bar", 10);
     if (name === "Copper Sword") return hasItem("Copper Bar", 5);
+
+    if (name === "Brachydon Hat") return hasItem("Copper Bar", 10) && hasItem("Brachydon Pelt", 10);
+    if (name === "Brachydon Coat") return hasItem("Copper Bar", 15) && hasItem("Brachydon Pelt", 15);
+    if (name === "Brachydon Club") return hasItem("Copper Bar", 10) && hasItem("Brachydon Femur", 1);
 
     return false;
   }
@@ -927,6 +931,15 @@
 
     const energyBar = document.getElementById("hud-energy-bar");
     if (energyBar) energyBar.style.width = (energy / 100 * 100) + "%";
+
+    const hudHealth = document.getElementById("hud-health");
+    if (hudHealth) hudHealth.textContent = health;
+
+    const hudMaxHealth = document.getElementById("hud-max-health");
+    if (hudMaxHealth) hudMaxHealth.textContent = maxHealth;
+
+    const hudEnergy = document.getElementById("hud-energy");
+    if (hudEnergy) hudEnergy.textContent = energy;
   }
   
   function updateForgeLocks() {
