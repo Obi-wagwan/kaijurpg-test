@@ -8,6 +8,7 @@
     .tab-buttons button {
       margin-right: 10px;
       padding: 10px 20px;
+      padding-bottom: 80px;
       border: none;
       background: #ccc;
       border-radius: 5px;
@@ -37,6 +38,28 @@
   100% { opacity: 0.8; }
 }
 
+@media (max-width: 600px) {
+  #bottom-tab-bar button {
+    font-size: 0.85em;
+    padding: 8px 10px;
+    flex: 1;
+  }
+
+  #bottom-tab-bar {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .panel {
+    padding: 12px;
+    font-size: 0.95em;
+  }
+
+  h3 {
+    font-size: 1.1em;
+  }
+}
 
   </style>
 
