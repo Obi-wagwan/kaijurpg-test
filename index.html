@@ -32,8 +32,16 @@
     .bar-group {
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      gap: 8px;
+      flex-grow: 1;
+      min-width: 200px;
+    }
+
+    .bar-label {
       white-space: nowrap;
+      font-weight: bold;
+      font-size: 0.9em;
     }
 
     #top-nav-bar {
@@ -2224,18 +2232,22 @@
   <!-- Row 2: Health + Energy Bars -->
   <div class="hud-bars">
     <div class="bar-group">
-      ❤️ <span id="hud-health">100</span>/<span id="hud-max-health">100</span>
+      <div class="bar-label">
+        ❤️ <span id="hud-health">100</span>/<span id="hud-max-health">100</span>
+      </div>
       <div class="progress-container short">
         <div class="progress-bar" id="hud-health-bar" style="background-color: #e53935;"></div>
       </div>
     </div>
-  
+    
     <div class="bar-group">
-      ⚡ <span id="hud-energy">100</span>/100
+      <div class="bar-label">
+        ⚡ <span id="hud-energy">100</span>/100
+      </div>
       <div class="progress-container short">
         <div class="progress-bar" id="hud-energy-bar" style="background-color: #2196F3;"></div>
       </div>
-    </div>
+    </div>    
   
     <button id="recharge-button" onclick="startRecharge()">Recharge</button>
   </div>  
