@@ -918,11 +918,15 @@
 	  document.getElementById("health-bar").style.width = (health / maxHealth * 100) + "%";
 	  document.getElementById("power-level").textContent = calculatePowerLevel();
 	  document.getElementById("status-effects").textContent = statusEffects.length > 0 ? statusEffects.join(", ") : "None";
-    document.getElementById("hud-energy").textContent = energy;
     document.getElementById("hud-health").textContent = health;
     document.getElementById("hud-max-health").textContent = maxHealth;
-    document.getElementById("hud-health-bar").style.width = (health / maxHealth * 100) + "%";
-    document.getElementById("hud-energy-bar").style.width = (energy / 100 * 100) + "%";
+    document.getElementById("hud-energy").textContent = energy;
+
+    const healthBar = document.getElementById("hud-health-bar");
+    if (healthBar) healthBar.style.width = (health / maxHealth * 100) + "%";
+
+    const energyBar = document.getElementById("hud-energy-bar");
+    if (energyBar) energyBar.style.width = (energy / 100 * 100) + "%";
   }
   
   function updateForgeLocks() {
