@@ -912,28 +912,8 @@
   }
 
   function updateStatus() {
-    document.getElementById("energy").textContent = energy;
-    document.getElementById("energy-bar").style.width = (energy / 100 * 100) + "%";
-    document.getElementById("money").textContent = money.toFixed(2);
-	  document.getElementById("slayer-points").textContent = slayerPoints;
-	  document.getElementById("recharge-button").disabled = isRecharging || energy >= 100;
-	  document.getElementById("health").textContent = health;
-	  document.getElementById("max-health").textContent = maxHealth;
-	  document.getElementById("health-bar").style.width = (health / maxHealth * 100) + "%";
-	  document.getElementById("power-level").textContent = calculatePowerLevel();
-	  const statusEl = document.getElementById("status-effects");
-    if (statusEl) {
-      statusEl.textContent = statusEffects.length > 0 ? statusEffects.join(", ") : "None";
-    }
-    document.getElementById("hud-health").textContent = health;
-    document.getElementById("hud-max-health").textContent = maxHealth;
-    document.getElementById("hud-energy").textContent = energy;
-
-    const healthBar = document.getElementById("hud-health-bar");
-    if (healthBar) healthBar.style.width = (health / maxHealth * 100) + "%";
-
-    const energyBar = document.getElementById("hud-energy-bar");
-    if (energyBar) energyBar.style.width = (energy / 100 * 100) + "%";
+    const hudEnergy = document.getElementById("hud-energy");
+    if (hudEnergy) hudEnergy.textContent = energy;
 
     const hudHealth = document.getElementById("hud-health");
     if (hudHealth) hudHealth.textContent = health;
@@ -941,10 +921,29 @@
     const hudMaxHealth = document.getElementById("hud-max-health");
     if (hudMaxHealth) hudMaxHealth.textContent = maxHealth;
 
-    const hudEnergy = document.getElementById("hud-energy");
-    if (hudEnergy) hudEnergy.textContent = energy;
+    const hudHealthBar = document.getElementById("hud-health-bar");
+    if (hudHealthBar) hudHealthBar.style.width = (health / maxHealth * 100) + "%";
+
+    const hudEnergyBar = document.getElementById("hud-energy-bar");
+    if (hudEnergyBar) hudEnergyBar.style.width = (energy / 100 * 100) + "%";
+
+    const statusEffectsEl = document.getElementById("status-effects");
+    if (statusEffectsEl) {
+      statusEffectsEl.textContent = statusEffects.length > 0
+        ? statusEffects.join(", ")
+        : "None";
+    }
+
+    const moneyEl = document.getElementById("money");
+    if (moneyEl) moneyEl.textContent = money.toFixed(2);
+
+    const slayerPointsEl = document.getElementById("slayer-points");
+    if (slayerPointsEl) slayerPointsEl.textContent = slayerPoints;
+
+    const powerEl = document.getElementById("power-level");
+    if (powerEl) powerEl.textContent = calculatePowerLevel();
   }
-  
+
   function updateForgeLocks() {
     const hunterLevel = skills.hunter.level;
 
