@@ -32,8 +32,7 @@
     .bar-group {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
       flex-grow: 1;
       min-width: 200px;
     }
@@ -160,7 +159,9 @@
       border-radius: 6px;
       cursor: pointer;
       white-space: nowrap;
-      flex-grow: 1;
+      flex-grow: 0;
+      flex-shrink: 1;
+      max-width: 100%;
       text-align: left;
     }
 
@@ -173,18 +174,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 16px;
       flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 4px;
-      margin-bottom: 6px;
       width: 100%;
       box-sizing: border-box;
     }
 
     .progress-container.short {
       height: 12px;
-      min-width: 100px;
-      width: clamp(120px, 15vw, 180px);
+      width: 100%;
+      max-width: 180px;
       background: #ddd;
       border-radius: 6px;
       overflow: hidden;
@@ -213,6 +212,11 @@
       background: #f0f0f0;
       border-radius: 6px;
       cursor: pointer;
+    }
+
+    /* recharge button */
+    .recharge-wrapper {
+      white-space: nowrap;
     }
 
   </style>
@@ -2249,15 +2253,15 @@
       </div>
     </div>    
   
-    <button id="recharge-button" onclick="startRecharge()">Recharge</button>
+    <div class="recharge-wrapper">
+      <button id="recharge-button" onclick="startRecharge()">Recharge</button>
+    </div>    
   </div>  
 
   <!-- Row 3: Buttons -->
   <div class="hud-buttons">
-    <button onclick="switchTab('gear')">Gear</button>
     <button onclick="switchTab('hunt')">Hunt</button>
     <button onclick="switchTab('slayer')">Slayer Guild</button>
-    <button onclick="stopAction()">Stop</button>
   </div>
 </footer>
 
