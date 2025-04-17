@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KaijuRPG v0.1.2</title>
+  <style>
+    body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+    .tab-buttons button {
+      margin-right: 10px;
+      padding: 10px 20px;
+      border: none;
+      background: #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+	.status-row {margin-bottom: 8px;}
+    .tab-buttons button.active { background: #4caf50; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .panel { background: white; padding: 15px; margin-top: 10px; border-radius: 8px; }
+    .progress-container { position: relative; height: 20px; background: #ddd; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+    .progress-bar { height: 100%; width: 0%; background: #4caf50; }
+    .evac-disabled {pointer-events: none; transition: opacity 0.2s ease;}
+    .max-level {color: #999; font-weight: normal;}
+    #save-conflict-modal table {width: 100%; border-collapse: collapse; margin-top: 10px;}
+    #save-conflict-modal td {padding: 6px 10px; text-align: left; vertical-align: top;}
+    #save-conflict-modal th {padding: 6px 10px; text-align: center;}
+    #slayer-assignment-status {font-size: 0.9em; color: gray;}
+    .assignment-complete {color: #d4af37 !important; /* ✨ GOLD */ font-weight: bold;animation: pulse 1s ease-in-out infinite alternate;}
+    #complete-task-btn:enabled {background-color: #d4af37; font-weight: bold; color: white;}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+
+  </style>
+
+  <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+</head>
+<body>
+
+<div class="panel" id="action-panel" style="position: relative; z-index: 10000; box-shadow: 0 0 20px #fff;">
+  <h3>Current Action: <span id="current-action">Idle</span></h3>
+  <div class="progress-container">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+
+  <!-- Bigger Stop Button -->
+  <div style="text-align: center; margin-top: 10px;">
+    <button id="stop-button" onclick="stopAction()" style="
+      padding: 10px 20px;
+      font-size: 1.1em;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    ">🛑 Stop</button>
+  </div>
+</div>
+
+<div style="display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 15px; gap: 10px;">
+	<button id="tab-hunt" style="
+      width: 65%; 
+      font-size: 1.25em;
+	  padding: 14px 20px;
+	  line-height: 1.4;
+      background-color: #e0f7e9;
+      color: #2e7d32;
+      font-weight: bold;
+      border: 2px solid #4caf50; 
+      border-radius: 8px;
+      margin-bottom: 10px;"
+    onclick="switchTab('hunt')">
+    🦖 HUNT
+	</button>
+
+	<button id="tab-slayer" style="
+      width: 35%; 
+      font-size: 1.25em; 
+      padding: 14px 20px;
+      line-height: 1.4;
+      background-color: #fff3e0; 
+      color: #e65100;
+      font-weight: bold; 
+      border: 2px solid #ff9800; 
+      border-radius: 8px;
+      margin-bottom: 10px;"
+    onclick="switchTab('slayer')">
+    🏹 Slayer Guild
+    </button>
+</div>
+
+  <!-- SHARED PLAYER STATUS PANEL -->
+  <div class="panel player-status" style="margin-bottom: 20px;">
+	  <div class="status-row">
+		💪 Power Level: <span id="power-level">0</span>
+	  </div>
+	  
+	  <div class="status-row">
+		🌀 Status Effects: <span id="status-effects">None</span>
+	  </div>
+	  
+	  <div class="status-row">
+		❤️ Health: <span id="health">100</span>/<span id="max-health">100</span>
+		<span id="regen-countdown" style="font-size: 0.85em; color: #27ae60; margin-left: 6px;"></span>
+	  </div>
+	  <div class="status-row">
+		<div class="progress-container" style="margin-top: 5px;">
+		  <div class="progress-bar" id="health-bar" style="background-color: #e53935;"></div>
+		</div>
+	  </div>
+
+	  <div class="status-row">
+		⚡ Energy: <span id="energy">100</span>/100
+		<button id="recharge-button" onclick="startRecharge()" style="margin-left: 10px;">Recharge</button>
+	  </div>
+	  
+	  <div class="status-row">
+		<div class="progress-container" style="margin-top: 5px;">
+		  <div class="progress-bar" id="energy-bar" style="background-color: #2196F3;"></div>
+		</div>
+	  </div>
+	  
+	  <div class="status-row">
+		💰 Money: $<span id="money">0.00</span>
+	  </div>
+		
+	  <div class="status-row">
+		🎯 Slayer Points: <span id="slayer-points">0</span>
+	  </div>
+
+    <div class="status-row" id="slayer-assignment-status">
+      📜 Assignment: None
+    </div>    
+
+    <div class="status-row" style="font-size: 0.9em; color: gray;">
+      ⏱ Last Saved (Local): <span id="last-saved-local">Never</span>
+      <br>
+      ☁️ Last Saved (Cloud): <span id="last-saved-cloud">Never</span>
+    </div>    
+  </div>
+
+<div class="tab-buttons" style="margin-top: 10px;">
+  <button class="active" onclick="switchTab('game')">Main</button>
+  <button onclick="switchTab('gear')">Gear</button>
+  <button onclick="switchTab('skills')">Skills</button>
+  <button onclick="switchTab('resources')">Resources</button>
+  <button onclick="switchTab('refining')">Refining</button>
+  <button onclick="switchTab('forging')">Forging</button>
+  <button onclick="switchTab('save')">💾 Save / Load</button>
+</div>
+
+<div class="tab-content active" id="game-tab">
+  <div class="panel">
+    <h4>Inventory</h4>
+    <div class="inventory-list">Empty</div>
+  </div>
+
+</div>
+
+<div class="tab-content" id="gear-tab">
+  <div class="panel">
+    <h3>Equipment</h3>
+    <div id="equipment-slots">
+      <div><strong>Helmet:</strong> <span id="slot-helmet">None</span> <span class="slot-bonus" id="slot-helmet-bonus"></span></div>
+	  <div><strong>Armor:</strong> <span id="slot-armor">None</span> <span class="slot-bonus" id="slot-armor-bonus"></span></div>
+	  <div><strong>Weapon:</strong> <span id="slot-weapon">None</span> <span class="slot-bonus" id="slot-weapon-bonus"></span></div>
+	  <div><strong>Accessory:</strong> <span id="slot-accessory">None</span> <span class="slot-bonus" id="slot-accessory-bonus"></span></div>
+	  <div><strong>Potion:</strong> <span id="slot-potion">None</span><span class="slot-bonus" id="slot-potion-bonus"></span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h4>Inventory</h4>
+    <div class="inventory-list">Empty</div>
+  </div>
+</div>
+
+<div class="tab-content" id="skills-tab">
+  <div class="panel" style="margin-top: 15px;">
+    <strong>Hunter</strong> - Level <span id="hunter-level">1</span> / <span class="max-level">99</span><br>
+    XP: <span id="hunter-xp">0</span> / <span id="hunter-next-xp">100</span>
+    <div class="progress-container">
+      <div class="progress-bar" id="hunter-progress-bar" style="background-color: #2ecc71;"></div>
+    </div>
+  </div>
+  
+  <div class="panel">
+    <strong>Gathering</strong> - Level <span id="gathering-level">1</span> / <span class="max-level">99</span><br>
+    XP: <span id="gathering-xp">0</span> / <span id="gathering-next-xp">100</span>
+    <div class="progress-container">
+      <div class="progress-bar" id="gathering-progress-bar"></div>
+    </div>
+  </div>
+  
+  <div class="panel" style="margin-top: 15px;">
+    <strong>Mining</strong> - Level <span id="mining-level">1</span> / <span class="max-level">99</span><br>
+    XP: <span id="mining-xp">0</span> / <span id="mining-next-xp">100</span>
+    <div class="progress-container">
+      <div class="progress-bar" id="mining-progress-bar" style="background-color: #a05d2b;"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top: 15px;">
+    <strong>Apothecary</strong> - Level <span id="apothecary-level">1</span> / <span class="max-level">99</span><br>
+    XP: <span id="apothecary-xp">0</span> / <span id="apothecary-next-xp">100</span>
+    <div class="progress-container">
+      <div class="progress-bar" id="apothecary-progress-bar" style="background-color: #8e44ad;"></div>
+    </div>
+  </div>
+  
+  <div class="panel" style="margin-top: 15px;">
+    <strong>Smithing</strong> - Level <span id="smithing-level">1</span> / <span class="max-level">99</span><br>
+    XP: <span id="smithing-xp">0</span> / <span id="smithing-next-xp">100</span>
+    <div class="progress-container">
+      <div class="progress-bar" id="smithing-progress-bar" style="background-color: #d35400;"></div>
+    </div>
+  </div>
+  
+</div>
+
+<div class="tab-content" id="resources-tab">
+  <div class="panel">
+    <h3>Gathering</h3>
+    <button onclick="startAction('Green Herb')">Green Herb</button>
+    <p>+4 XP, +1 Green Herb, -1 Energy</p>
+  </div>
+  
+  <div class="panel">
+    <h3>Mining</h3>
+    <button onclick="startAction('Copper Ore')">Copper Ore</button>
+    <p>+4 XP (Mining), +1 Copper Ore, -1 Energy</p>
+  </div>
+</div>
+
+<div class="tab-content" id="refining-tab">
+  <div class="panel">
+    <h3>Apothecary</h3>
+    <button onclick="startAction('Green Potion')">Green Potion</button>
+    <p>Costs: 1 Energy + (10 Green Herb or 5 Mature Green Herb)<br>
+    Produces: 1 Green Potion, +4 XP (Apothecary)</p>
+  </div>
+  
+  <div class="panel">
+    <h3>Smithing</h3>
+    <button onclick="startAction('Copper Bar')">Copper Bar</button>
+    <p>Costs: 1 Energy + 10 Copper Ore<br>
+    Produces: 1 Copper Bar, +4 XP (Smithing)</p>
+  </div>
+
+</div>
+
+<div class="tab-content" id="forging-tab">
+  <div class="panel">
+    <h3>Forging</h3>
+
+    <details>
+      <summary style="font-weight: bold; cursor: pointer; margin-bottom: 10px;">🧱 Copper Gear (Tier 1)</summary>
+
+      <div style="margin-left: 10px; margin-top: 5px;">
+        <button onclick="startAction('Copper Helmet')">Copper Helmet</button>
+        <p>Costs: 5 Copper Bars + 1 Energy<br>Grants: 20 XP (Smithing)</p>
+
+        <button onclick="startAction('Copper Armor')">Copper Armor</button>
+        <p>Costs: 10 Copper Bars + 1 Energy<br>Grants: 40 XP (Smithing)</p>
+
+        <button onclick="startAction('Copper Sword')">Copper Sword</button>
+        <p>Costs: 5 Copper Bars + 1 Energy<br>Grants: 20 XP (Smithing)</p>
+      </div>
+    </details>
+	
+	<details>
+      <summary style="font-weight: bold; cursor: pointer; margin-top: 15px;">🦖 Brachydon Gear (Tier 1.5)</summary>
+	  <div style="margin-left: 10px; margin-top: 5px;">
+        <button onclick="startAction('Brachydon Hat')" id="btn-brachydon-hat" >Brachydon Hat</button>
+        <p>Requires: 10 Copper Bars, 10 Brachydon Pelt<br>Level: Smithing 5+, Hunter 5+<br>Grants: 25 XP (Smithing)</p>
+
+        <button onclick="startAction('Brachydon Coat')" id="btn-brachydon-coat">Brachydon Coat</button>
+        <p>Requires: 15 Copper Bars, 15 Brachydon Pelt<br>Level: Smithing 5+, Hunter 5+<br>Grants: 45 XP (Smithing)</p>
+
+        <button onclick="startAction('Brachydon Club')" id="btn-brachydon-club">Brachydon Club</button>
+        <p>Requires: 10 Copper Bars, 1 Brachydon Femur<br>Level: Smithing 5+, Hunter 5+<br>Grants: 30 XP (Smithing)</p>
+      </div>
+    </details>
+	
+  </div>
+</div>
+
+<div class="tab-content" id="save-tab">
+  <div class="panel">
+    <h3>💾 Save / Load Game</h3>
+    <p><strong>Version:</strong> <span id="save-version">0.1.2</span></p>
+
+    <button onclick="saveGame()" style="margin: 10px 0;">💾 Save Game</button>
+    <span id="save-status" style="margin-left: 10px; font-size: 0.9em; color: #2e7d32;"></span><br>
+
+    <button onclick="resetSave()" style="margin: 10px 0; color: red;">♻️ Reset Game</button>
+
+    <hr>
+    <h4>🔐 Google Sign-In</h4>
+    <button onclick="signInWithGoogle()">Sign in with Google</button>
+    <p>Signed in as: <span id="user-name" style="font-weight: bold;">Not signed in</span></p>
+
+    <hr>
+    <h4>☁️ Cloud Save</h4>
+    <br>
+    <button id="cloud-save-btn" onclick="saveToCloud(currentUserUID)" disabled style="padding: 8px 16px;">☁️ Save to Cloud</button>
+  </div>
+</div>
+
+<div class="tab-content" id="hunt-tab">
+  <div class="panel" id="encounter-panel" style="display: none;">
+    <h3>🦖 Current Encounter</h3>
+    <p><strong id="monster-name">??</strong></p>
+    <p>HP: <span id="monster-hp-text">-- / --</span></p>
+    <div class="progress-container" style="margin-top: 5px;">
+      <div class="progress-bar" id="monster-hp-bar" style="background-color: #8e44ad;"></div>
+    </div>
+	
+	<div style="margin-top: 10px;">
+	  <button onclick="playerAttack()">⚔️ Fight!</button>
+    </div>
+	
+	<div style="margin-top: 10px;">
+	  <button id="use-potion-btn" onclick="useEquippedPotion()">🧪 Use Potion</button>
+	</div>
+	
+  </div>
+  
+  <div class="panel" style="margin-top: 15px;">
+    <h4>📝 Activity Log</h4>
+    <div id="hunt-log" style="font-size: 0.95em; line-height: 1.4; max-height: 100px; overflow-y: auto;"></div>
+  </div>
+
+  <details>
+    <summary style="font-weight: bold; font-size: 1.1em; margin-top: 10px;">🌿 Herbivores</summary>
+    <div class="panel" style="margin-top: 10px;">
+      <p>These Kaiju are slow and sturdy, perfect for beginners.</p>
+
+      <div class="panel" style="margin-top: 10px;">
+        <h3>Brachydon</h3>
+        <p><strong>Requires:</strong> Hunter Level 1</p>
+        <button onclick="startHunt('Brachydon')">Hunt Brachydon</button>
+      </div>
+    </div>
+  </details>
+  
+  <details>
+    <summary style="font-weight: bold; font-size: 1.1em; margin-top: 10px;">🦴 Carnivores</summary>
+    <div class="panel" style="margin-top: 10px;">
+      <p>These predators hit hard. Come prepared with full gear.</p>
+
+      <div class="panel" style="margin-top: 10px;">
+        <h3>Razoraptor</h3>
+        <p><strong>Requires:</strong> Hunter Level 3</p>
+        <button onclick="startHunt('Razoraptor')">Hunt Razoraptor</button>
+      </div>
+    </div>
+  </details>
+</div>
+
+<div class="tab-content" id="slayer-tab">
+  <div class="panel">
+    <h3>🏹 Slayer Guild</h3>
+    <p><strong>Guildmaster:</strong> "I've got just the task for someone of your strength..."</p>
+    <button id="get-task-btn" onclick="assignGuildTask()">Get Assignment</button>
+
+    <button id="reroll-task-btn" onclick="rerollSlayerTask()" disabled>🔁 Re-roll Task (100 Slayer Points)</button>
+
+    <div id="assignment-result" style="margin-top: 10px;"></div>
+    
+    <div id="complete-task-wrapper" style="margin-top: 10px;">
+      <button id="complete-task-btn" onclick="completeSlayerTask()" disabled>✅ Complete Task</button>
+    </div>          
+  </div>
+</div>
+
+<script>
+  let currentUserUID = null;
+  let pendingCloudSnapshot = null;
+  let pendingCloudUID = null;
+  let currentAction = null;
+  let currentAssignment = null;
+  let isEvacuating = false;
+  let currentMonster = null;
+  let monsterHP = 0;
+  let energy = 100;
+  let health = 100;
+  const maxHealth = 100;
+  let statusEffects = [];
+  let money = 0;
+  let slayerPoints = 0;
+  const actionDuration = 6000;
+  let inventory = {};
+  let skills = {
+	hunter: { level: 1, xp: 0, nextXp: 100, maxLevel: 99 },
+    gathering: { level: 1, xp: 0, nextXp: 100, maxLevel: 99 },
+	mining: { level: 1, xp: 0, nextXp: 100, maxLevel: 99 },
+	apothecary: { level: 1, xp: 0, nextXp: 100, maxLevel: 99 },
+	smithing: { level: 1, xp: 0, nextXp: 100, maxLevel: 99 }
+
+  };
+  let equipment = {
+    helmet: null,
+    armor: null,
+    weapon: null,
+    accessory: null,
+	potion: null
+  };
+  
+  const gearStats = {
+    "Copper Helmet": { power: 5, requiredLevel: 1 },
+    "Copper Armor": { power: 10, requiredLevel: 1 },
+    "Copper Sword": { power: 7, requiredLevel: 1 },
+	
+	  "Brachydon Hat": { power: 7, requiredLevel: 5, requiredHunterLevel: 5 },
+    "Brachydon Coat": { power: 12, requiredLevel: 5, requiredHunterLevel: 5 },
+    "Brachydon Club": { power: 9, requiredLevel: 5, requiredHunterLevel: 5 }
+  };
+  
+  const potionEffects = {
+    "Green Potion": "Heals 10% HP"
+    // Later: "Energy Elixir": "Restores 15 Energy", etc.
+  };
+
+  
+  const monsters = {
+    "Brachydon": {
+      name: "Brachydon",
+      type: "Herbivore",
+      level: 1,
+      maxHP: 30,
+      attack: 4,
+      xpReward: 4,
+      slayerPoints: 1,
+      drops: [{ item: "Brachydon Pelt", chance: 0.5 },
+			        { item: "Bachydon Femur", chance: 0.05 }],
+      required: {hunterLevel: 1}
+    },
+	
+	"Razoraptor": {
+      name: "Razoraptor",
+      type: "Carnivore",
+      level: 3,
+      maxHP: 50,
+      attack: 10,
+      xpReward: 6,
+      slayerPoints: 2,
+      drops: [],
+      required: {hunterLevel: 3}
+    }
+
+  };
+  
+  const gearSlots = {
+    "Copper Helmet": "helmet",
+    "Copper Armor": "armor",
+    "Copper Sword": "weapon",
+
+    "Brachydon Hat": "helmet",
+    "Brachydon Coat": "armor",
+    "Brachydon Club": "weapon",
+
+	  "Green Potion": "potion"
+    // Add more items here in the future
+  };
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-buttons button').forEach(btn => {btn.classList.remove('active');});
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+    // Add active class to the matching content
+    document.getElementById(`${tab}-tab`).classList.add('active');
+
+    // Add active class to button manually
+    const allButtons = document.querySelectorAll('.tab-buttons button');
+    allButtons.forEach(btn => {
+      if (btn.getAttribute('onclick') === `switchTab('${tab}')`) {
+        btn.classList.add('active');
+      }
+    });
+	
+	updateSpecialTabStyles(tab);
+  }
+  
+  function updateSpecialTabStyles(activeTab) {
+    const huntBtn = document.getElementById("tab-hunt");
+    const guildBtn = document.getElementById("tab-slayer");
+
+    if (huntBtn) {
+      if (activeTab === "hunt") {
+        huntBtn.style.backgroundColor = "#c8e6c9";  // deeper green
+        huntBtn.style.borderColor = "#2e7d32";
+        huntBtn.style.color = "#1b5e20";
+      } else {
+        huntBtn.style.backgroundColor = "#e0f7e9";
+        huntBtn.style.borderColor = "#4caf50";
+        huntBtn.style.color = "#2e7d32";
+      }
+    }
+
+    if (guildBtn) {
+      if (activeTab === "slayer") {
+        guildBtn.style.backgroundColor = "#ffe0b2";  // deeper orange
+        guildBtn.style.borderColor = "#e65100";
+        guildBtn.style.color = "#bf360c";
+      } else {
+        guildBtn.style.backgroundColor = "#fff3e0";
+        guildBtn.style.borderColor = "#ff9800";
+        guildBtn.style.color = "#e65100";
+      }
+    }
+  }
+
+  function calculatePowerLevel(equip = equipment) {
+    let power = 0;
+    for (let slot in equip) {
+      const item = equip[slot];
+      if (item && gearStats[item]) {
+        power += gearStats[item].power;
+      }
+    }
+    return power;
+  }
+
+  function renderInventory() {
+    document.querySelectorAll(".inventory-list").forEach(list => {
+      list.innerHTML = "";
+
+      const hasItems = Object.keys(inventory).some(key => inventory[key] > 0);
+
+      if (!hasItems) {
+        list.innerHTML = '<div class="inventory-item">Empty</div>';
+        return;
+      }
+
+      for (let key in inventory) {
+        if (inventory[key] <= 0) continue;
+
+        const div = document.createElement("div");
+        div.className = "inventory-item";
+        div.textContent = `${key}: ${inventory[key]}`;
+
+        if (key === "Green Potion") {
+          div.style.cursor = "pointer";
+          div.style.color = "#27ae60";
+          div.title = "Click to equip to Potion Slot";
+          div.onclick = () => equipItem(key);
+        } else if (gearSlots[key]) {
+          const stats = gearStats[key];
+          div.style.cursor = "pointer";
+          div.style.color = "#a67c00";
+          div.title = `Power: +${stats.power} | Requires Smithing Level ${stats.requiredLevel}`;
+          div.onclick = () => equipItem(key);
+        }
+
+        list.appendChild(div);
+      }
+    });
+  }
+
+  function updateSkillUI(skillName) {
+    const skill = skills[skillName];
+    if (!skill) return;
+
+    document.getElementById(`${skillName}-level`).textContent = skill.level;
+    document.getElementById(`${skillName}-xp`).textContent = skill.xp;
+    document.getElementById(`${skillName}-next-xp`).textContent = skill.nextXp;
+
+    const progressBar = document.getElementById(`${skillName}-progress-bar`);
+    if (progressBar) {
+      progressBar.style.width = (skill.xp / skill.nextXp * 100) + "%";
+    }
+  }
+  
+  function startAction(name) {
+    if (currentAction) return;
+
+    // Pre-check: Green Potion needs herbs
+    if (name === "Green Potion") {
+      if (energy < 1) {
+        alert("Not enough energy!");
+        return;
+      }
+
+      const hasGreenHerbs = inventory["Green Herb"] >= 10;
+      const hasMatureHerbs = inventory["Mature Green Herb"] >= 5;
+
+      if (!hasGreenHerbs && !hasMatureHerbs) {
+        alert("You don’t have enough herbs to make a Green Potion!");
+        return;
+      }
+    }
+	
+	if (name === "Copper Bar") {
+      if (!inventory["Copper Ore"] || inventory["Copper Ore"] < 10) {
+        alert("Not enough Copper Ore to refine!");
+        return;
+      }
+    }
+	
+	if (name === "Copper Helmet" && (energy < 1 || (inventory["Copper Bar"] || 0) < 5)) {
+      alert("You need 5 Copper Bars and 1 energy to forge a Copper Helmet.");
+      return;
+    }
+
+    if (name === "Copper Armor" && (energy < 1 || (inventory["Copper Bar"] || 0) < 10)) {
+      alert("You need 10 Copper Bars and 1 energy to forge Copper Armor.");
+      return;
+    }
+
+    if (name === "Copper Sword" && (energy < 1 || (inventory["Copper Bar"] || 0) < 5)) {
+      alert("You need 5 Copper Bars and 1 energy to forge a Copper Sword.");
+      return;
+    }
+	
+	if (name === "Brachydon Hat") {
+	  if (skills.smithing.level < 5 || skills.hunter.level < 5) {
+        alert("Requires Smithing Level 5 and Hunter Level 5.");
+        return;
+      }
+      if (!hasItem("Copper Bar", 10) || !hasItem("Brachydon Pelt", 10)) {
+        alert("Missing materials: 10 Copper Bars, 10 Brachydon Pelt");
+        return;
+      }
+    }
+
+    if (name === "Brachydon Coat") {
+      if (skills.smithing.level < 5 || skills.hunter.level < 5) {
+        alert("Requires Smithing Level 5 and Hunter Level 5.");
+        return;
+      }
+      if (!hasItem("Copper Bar", 15) || !hasItem("Brachydon Pelt", 15)) {
+        alert("Missing materials: 15 Copper Bars, 15 Brachydon Pelt");
+        return;
+      }
+    }
+
+    if (name === "Brachydon Club") {
+      if (skills.smithing.level < 5 || skills.hunter.level < 5) {
+        alert("Requires Smithing Level 5 and Hunter Level 5.");
+        return;
+      }
+      if (!hasItem("Copper Bar", 10) || !hasItem("Brachydon Femur", 1)) {
+        alert("Missing materials: 10 Copper Bars, 1 Brachydon Femur");
+        return;
+      }
+    }
+
+    // Start the action
+    currentAction = name;
+    document.getElementById("current-action").textContent = name;
+    runActionLoop();
+  }
+
+
+    function runActionLoop() {
+      if (!currentAction) return;
+
+      let progress = 0;
+      const bar = document.getElementById("progress-bar");
+
+      const interval = setInterval(() => {
+        // Stop early if action was canceled
+        if (!currentAction) {
+          clearInterval(interval);
+          bar.style.width = "0%";
+          return;
+        }
+
+        progress += 100 / (actionDuration / 100);
+        bar.style.width = progress + "%";
+
+        if (progress >= 100) {
+          clearInterval(interval);
+          completeAction(currentAction);
+
+          // ✅ Post-completion: check whether we can continue
+          if (!canContinueAction(currentAction)) {
+            stopAction(); // stop cleanly
+            return;
+          }
+
+          setTimeout(runActionLoop, 0);
+        }
+      }, 100);
+    }
+
+  function stopAction() {
+    currentAction = null;
+    document.getElementById("current-action").textContent = "Idle";
+    document.getElementById("progress-bar").style.width = "0%";
+    if (isRecharging) return; // ✅ Do nothing while recharging
+  }
+
+  function completeAction(name) {
+    if (name === "Green Herb") {
+      if (energy < 1) {
+        stopAction(); return;
+      }
+      energy -= 1;
+      addXP("gathering", 4);
+      addToInventory("Green Herb", 1);
+
+      const level = skills.gathering.level;
+      const chance = 0.10 + (level - 1) * (0.40 / 98);
+      if (Math.random() < chance) {
+        addToInventory("Mature Green Herb", 1);
+      }
+    }
+
+    else if (name === "Green Potion") {
+      if (energy < 1 || (!hasItem("Green Herb", 10) && !hasItem("Mature Green Herb", 5))) {
+        stopAction(); return;
+      }
+
+      energy -= 1;
+      if (hasItem("Green Herb", 10)) {
+	  inventory["Green Herb"] -= 10;
+	  addToInventory("Green Herb", 0);
+	  }
+      else {
+	  inventory["Mature Green Herb"] -= 5;
+	  addToInventory("Mature Green Herb", 0);
+	  }
+
+      addXP("apothecary", 4);
+      addToInventory("Green Potion", 1);
+    }
+
+    else if (name === "Copper Ore") {
+      if (energy < 1) {
+        stopAction(); return;
+      }
+      energy -= 1;
+      addXP("mining", 4);
+      addToInventory("Copper Ore", 1);
+    }
+
+    else if (name === "Copper Bar") {
+      if (!hasItem("Copper Ore", 10)) {
+        stopAction(); return;
+      }
+      inventory["Copper Ore"] -= 10;
+	  addToInventory("Copper Ore", 0); // 👈 re-renders inventory and cleans out 0
+	  energy -= 1;
+      addXP("smithing", 4);
+      addToInventory("Copper Bar", 1);
+    }
+
+    else if (name === "Copper Helmet") {
+      if (energy < 1 || !hasItem("Copper Bar", 5)) {
+        stopAction(); return;
+      }
+      inventory["Copper Bar"] -= 5;
+	  addToInventory("Copper Bar", 0);
+      energy -= 1;
+      addXP("smithing", 20);
+      addToInventory("Copper Helmet", 1);
+    }
+
+    else if (name === "Copper Armor") {
+      if (energy < 1 || !hasItem("Copper Bar", 10)) {
+        stopAction(); return;
+      }
+      inventory["Copper Bar"] -= 10;
+	  addToInventory("Copper Bar", 0);
+      energy -= 1;
+      addXP("smithing", 40);
+      addToInventory("Copper Armor", 1);
+    }
+
+    else if (name === "Copper Sword") {
+      if (energy < 1 || !hasItem("Copper Bar", 5)) {
+        stopAction(); return;
+      }
+      inventory["Copper Bar"] -= 5;
+	  addToInventory("Copper Bar", 0);
+      energy -= 1;
+      addXP("smithing", 20);
+      addToInventory("Copper Sword", 1);
+    }
+	
+	else if (name === "Brachydon Hat") {
+      inventory["Copper Bar"] -= 10;
+      inventory["Brachydon Pelt"] -= 10;
+      addXP("smithing", 25);
+      addToInventory("Brachydon Hat", 1);
+    }
+
+    else if (name === "Brachydon Coat") {
+      inventory["Copper Bar"] -= 15;
+      inventory["Brachydon Pelt"] -= 15;
+      addXP("smithing", 45);
+      addToInventory("Brachydon Coat", 1);
+    }
+
+    else if (name === "Brachydon Club") {
+      inventory["Copper Bar"] -= 10;
+      inventory["Brachydon Femur"] -= 1;
+      addXP("smithing", 30);
+      addToInventory("Brachydon Club", 1);
+    }
+
+    updateStatus();
+  }
+  
+  function canContinueAction(name) {
+    if (energy < 1) return false;
+
+    if (name === "Green Herb") return true;
+
+    if (name === "Green Potion") {
+      return hasItem("Green Herb", 10) || hasItem("Mature Green Herb", 5);
+    }
+
+    if (name === "Copper Ore") return true;
+    if (name === "Copper Bar") return hasItem("Copper Ore", 10);
+    if (name === "Copper Helmet") return hasItem("Copper Bar", 5);
+    if (name === "Copper Armor") return hasItem("Copper Bar", 10);
+    if (name === "Copper Sword") return hasItem("Copper Bar", 5);
+
+    return false;
+  }
+
+  function addXP(skill, amount) {
+    let s = skills[skill];
+    s.xp += amount;
+    while (s.xp >= s.nextXp && s.level < s.maxLevel) {
+      s.xp -= s.nextXp;
+      s.level++;
+      s.nextXp = Math.floor(s.nextXp * 1.1);
+    }
+    document.getElementById(`${skill}-level`).textContent = s.level;
+    document.getElementById(`${skill}-xp`).textContent = s.xp;
+    document.getElementById(`${skill}-next-xp`).textContent = s.nextXp;
+    document.getElementById(`${skill}-progress-bar`).style.width = (s.xp / s.nextXp * 100) + "%";
+  }
+
+  function addToInventory(item, amt) {
+    if (!item) return;
+
+    inventory[item] = (inventory[item] || 0) + amt;
+
+    // 💥 If count is now 0 or less, remove it entirely
+    if (inventory[item] <= 0) {
+      delete inventory[item];
+    }
+
+    // ✅ Update all inventory displays
+    document.querySelectorAll(".inventory-list").forEach(list => {
+      list.innerHTML = "";
+
+      // 💡 Check if any non-zero items exist
+      const visibleItems = Object.entries(inventory).filter(([key, val]) => val > 0);
+
+      if (visibleItems.length === 0) {
+        list.innerHTML = '<div class="inventory-item">Empty</div>';
+        return;
+      }
+
+      for (let [key, value] of visibleItems) {
+        const div = document.createElement("div");
+        div.className = "inventory-item";
+        div.textContent = `${key}: ${value}`;
+
+        // Green Potion: click to equip
+        if (key === "Green Potion") {
+          div.style.cursor = "pointer";
+          div.style.color = "#27ae60";
+		  div.title = "Click to equip to Potion Slot";
+		  div.onclick = () => equipItem(key);
+        }
+
+        // Gear: click to equip
+        else if (gearSlots[key]) {
+          const stats = gearStats[key];
+          div.style.cursor = "pointer";
+          div.style.color = "#a67c00";
+          div.title = `Power: +${stats.power} | Requires Smithing Level ${stats.requiredLevel}`;
+          div.onclick = () => equipItem(key);
+        }
+
+        list.appendChild(div);
+      }
+    });
+  }
+
+  function updateStatus() {
+    document.getElementById("energy").textContent = energy;
+    document.getElementById("energy-bar").style.width = (energy / 100 * 100) + "%";
+    document.getElementById("money").textContent = money.toFixed(2);
+	  document.getElementById("slayer-points").textContent = slayerPoints;
+	  document.getElementById("recharge-button").disabled = isRecharging || energy >= 100;
+	  document.getElementById("health").textContent = health;
+	  document.getElementById("max-health").textContent = maxHealth;
+	  document.getElementById("health-bar").style.width = (health / maxHealth * 100) + "%";
+	  document.getElementById("power-level").textContent = calculatePowerLevel();
+	  document.getElementById("status-effects").textContent = statusEffects.length > 0 ? statusEffects.join(", ") : "None";
+  }
+  
+  function updateForgeLocks() {
+    const hunterLevel = skills.hunter.level;
+
+    const btns = [
+      { id: "btn-brachydon-hat", label: "Brachydon Hat", required: 5 },
+      { id: "btn-brachydon-coat", label: "Brachydon Coat", required: 5 },
+      { id: "btn-brachydon-club", label: "Brachydon Club", required: 5 }
+    ];
+
+    btns.forEach(btn => {
+      const el = document.getElementById(btn.id);
+      if (!el) return;
+
+      if (hunterLevel < btn.required) {
+        el.disabled = true;
+        el.textContent = `🔒 Locked (${btn.label})`;
+        el.style.opacity = "0.5";
+      } else {
+        el.disabled = false;
+        el.textContent = btn.label;
+        el.style.opacity = "1";
+      }
+    });
+  }
+  
+  let isRecharging = false;
+  let rechargeProgress = 0;
+  const rechargeTime = 30000;
+  let rechargeInterval = null;
+
+  function startRecharge() {
+    if (isRecharging || energy >= 100) return;
+
+    isRecharging = true;
+    document.getElementById("recharge-button").disabled = true;
+    document.getElementById("stop-button").disabled = true;
+    document.getElementById("evac-overlay").style.display = "block";
+    document.body.classList.add("evac-disabled");
+    rechargeProgress = 0;
+
+    // ✅ Show "Recharging..." in action panel
+    document.getElementById("current-action").textContent = "Recharging...";
+
+    rechargeInterval = setInterval(() => {
+      rechargeProgress += 100 / (rechargeTime / 100);
+
+      // ✅ Use main progress bar instead of recharge-bar
+      document.getElementById("progress-bar").style.width = rechargeProgress + "%";
+
+      if (rechargeProgress >= 100) {
+        clearInterval(rechargeInterval);
+        energy = 100;
+        isRecharging = false;
+
+        // ✅ Reset UI
+        document.getElementById("progress-bar").style.width = "0%";
+        document.getElementById("current-action").textContent = "Idle";
+        document.getElementById("recharge-button").disabled = false;
+        document.getElementById("stop-button").disabled = false;
+        document.getElementById("evac-overlay").style.display = "none";
+        document.body.classList.remove("evac-disabled");
+
+        updateStatus();
+      }
+    }, 100);
+  }
+  
+  function useGreenPotion() {
+    if (!inventory["Green Potion"] || inventory["Green Potion"] < 1) {
+      alert("You don't have any Green Potions!");
+      return;
+    }
+
+    if (health >= maxHealth) {
+      alert("You’re already at full health!");
+      return;
+    }
+
+    const healAmount = Math.ceil(maxHealth * 0.10);
+    health = Math.min(health + healAmount, maxHealth);
+
+    inventory["Green Potion"] -= 1;
+    if (inventory["Green Potion"] <= 0) {
+      delete inventory["Green Potion"];
+    }
+
+    updateStatus();
+    addToInventory("Green Potion", 0); // Refresh display
+  }
+  
+  function equipItem(itemName) {
+    if (currentMonster) {
+      alert("You cannot change gear or potions while in combat!");
+      return;
+    }
+	
+	// Check if this gear has a hunter level requirement
+    if (gearStats[itemName] && gearStats[itemName].requiredHunterLevel) {
+      if (skills.hunter.level < gearStats[itemName].requiredHunterLevel) {
+        alert(`You need Hunter Level ${gearStats[itemName].requiredHunterLevel} to equip this item.`);
+        return;
+      }
+    }
+	
+    const slot = gearSlots[itemName];
+    if (!slot) return;
+
+    // Special case for potion slot
+    if (slot === "potion") {
+      const currentPotion = equipment.potion;
+
+      // No potion equipped yet
+      if (!currentPotion) {
+        equipment.potion = { name: itemName, quantity: 1 };
+        inventory[itemName] -= 1;
+      }
+      // Same potion equipped → stack up to 10
+      else if (currentPotion.name === itemName && currentPotion.quantity < 10) {
+        equipment.potion.quantity++;
+        inventory[itemName] -= 1;
+      }
+      // Trying to equip a different potion
+      else {
+        alert("You can only equip one type of potion at a time (max 10). Unequip first to switch.");
+        return;
+      }
+
+      // Clean up inventory if item hits 0
+      if (inventory[itemName] <= 0) {
+        delete inventory[itemName];
+      }
+
+      updateEquipmentUI();
+      updateStatus();
+      addToInventory(itemName, 0);
+	  updateUsePotionButton();
+      return;
+    }
+
+    // Default gear logic for weapon, armor, etc.
+    if (equipment[slot]) {
+      addToInventory(equipment[slot], 1);
+    }
+
+    equipment[slot] = itemName;
+    inventory[itemName] -= 1;
+    if (inventory[itemName] <= 0) {
+      delete inventory[itemName];
+    }
+
+    updateEquipmentUI();
+    updateStatus();
+    addToInventory(itemName, 0);
+  }
+
+  
+  function updateEquipmentUI() {
+    ["helmet", "armor", "weapon", "accessory"].forEach(slot => {
+      const item = equipment[slot];
+      const nameEl = document.getElementById(`slot-${slot}`);
+      const bonusEl = document.getElementById(`slot-${slot}-bonus`);
+
+      if (item) {
+        nameEl.textContent = item;
+        nameEl.style.cursor = "pointer";
+        nameEl.style.color = "#c0392b";
+        const itemStats = gearStats[item];
+		if (itemStats) {
+		  nameEl.title = `Power: +${itemStats.power} | Requires Smithing Level ${itemStats.requiredLevel}`;
+		} else {
+		  nameEl.title = "Click to unequip!";
+		}
+
+        nameEl.onclick = () => unequipItem(slot);
+
+        // Show bonus
+        const bonus = gearStats[item]?.power || 0;
+        bonusEl.textContent = `(+${bonus})`;
+      } else {
+        nameEl.textContent = "None";
+        nameEl.style.cursor = "default";
+        nameEl.style.color = "#000";
+        nameEl.title = "";
+        nameEl.onclick = null;
+
+        bonusEl.textContent = "";
+      }
+    });
+	
+	  // Special logic for potion slot (stackable)
+	  const potion = equipment.potion;
+	  const nameEl = document.getElementById("slot-potion");
+	  const bonusEl = document.getElementById("slot-potion-bonus");
+
+	  if (potion) {
+	    nameEl.textContent = `${potion.name} x${potion.quantity}`;
+	    nameEl.style.cursor = "pointer";
+	    nameEl.style.color = "#27ae60";
+	    nameEl.title = "Click to unequip!";
+		nameEl.onclick = () => unequipItem("potion");
+
+		bonusEl.textContent = ` (+${potionEffects[potion.name] || "Effect"})`;
+		bonusEl.style.color = "#27ae60";
+	  } else {
+		nameEl.textContent = "None";
+		nameEl.style.cursor = "default";
+		nameEl.style.color = "#000";
+		nameEl.title = "";
+		nameEl.onclick = null;
+
+		bonusEl.textContent = "";
+	  }
+  }
+  
+  function unequipItem(slot) {
+    if (currentMonster) {
+      alert("You cannot unequip gear during combat!");
+      return;
+    }
+	
+    if (slot === "potion") {
+      const potion = equipment.potion;
+      if (!potion) return;
+
+      addToInventory(potion.name, potion.quantity); // 👈 add full stack back
+      equipment.potion = null;
+	  updateUsePotionButton();
+    } else {
+      const item = equipment[slot];
+      if (!item) return;
+
+      addToInventory(item, 1);
+      equipment[slot] = null;
+    }
+
+    updateEquipmentUI();
+    updateStatus();
+	updateUsePotionButton();
+  }
+  
+  function hasItem(item, count) {
+    return (inventory[item] || 0) >= count;
+  }
+  
+  function startHunt(monsterName) {
+    const monster = monsters[monsterName];
+    if (!monster) {
+      alert("Unknown monster!");
+      return;
+    }
+
+    if (skills.hunter.level < monster.level) {
+      alert(`You need Hunter level ${monster.level} to hunt ${monster.name}!`);
+      return;
+    }
+
+    currentMonster = monster;
+    monsterHP = monster.maxHP;
+	updateUsePotionButton();
+	
+	document.getElementById("encounter-panel").style.display = "block";
+    document.getElementById("monster-name").textContent = currentMonster.name;
+	updateMonsterUI();
+	updateUsePotionButton();
+
+  logHuntMessage(`⚔️ <strong>You have engaged ${monster.name}!</strong>`);
+  }
+  
+  function updateMonsterUI() {
+    if (!currentMonster) {
+      document.getElementById("monster-hp-text").textContent = "-- / --";
+      document.getElementById("monster-hp-bar").style.width = "0%";
+      return;
+    }
+
+    document.getElementById("monster-hp-text").textContent = `${monsterHP} / ${currentMonster.maxHP}`;
+    const percent = (monsterHP / currentMonster.maxHP) * 100;
+    document.getElementById("monster-hp-bar").style.width = `${percent}%`;
+  }
+  
+  function playerAttack() {
+    if (!currentMonster) return;
+
+    // === Player's Turn ===
+    const playerPower = calculatePowerLevel();
+    const playerVariance = Math.floor(playerPower * 0.2);
+    const playerMin = Math.max(1, playerPower - playerVariance);
+    const playerMax = playerPower + playerVariance;
+	let isCrit = false;
+	let playerDamage = Math.floor(Math.random() * (playerMax - playerMin + 1)) + playerMin;
+
+	// 10% critical hit chance
+	if (Math.random() < 0.10) {
+	  isCrit = true;
+	  playerDamage = Math.floor(playerDamage * 1.5);
+	}
+
+    monsterHP -= playerDamage;
+    if (isCrit) {
+	  logHuntMessage(`💥 CRITICAL HIT! You hit ${currentMonster.name} for ${playerDamage} damage!`);
+	} else {
+	  logHuntMessage(`You hit ${currentMonster.name} for ${playerDamage} damage!`);
+	}
+	
+    updateMonsterUI();
+    updateUsePotionButton();
+
+    if (monsterHP <= 0) {
+      logHuntMessage(`${currentMonster.name} has been defeated!`);
+      addXP("hunter", currentMonster.xpReward);
+	  updateForgeLocks();
+      slayerPoints += currentMonster.slayerPoints;
+	  
+	  // 🎁 Loot drop system
+	  if (currentMonster.drops && Array.isArray(currentMonster.drops)) {
+	    currentMonster.drops.forEach(drop => {
+		  if (Math.random() < drop.chance) {
+		    addToInventory(drop.item, 1);
+		    logHuntMessage(`📦 You received: ${drop.item}!`);
+		  }
+		});
+	  }
+
+    // ✅ Slayer assignment progress
+    if (
+      currentAssignment &&
+      currentAssignment.creature === currentMonster.name &&
+      currentAssignment.completed < currentAssignment.quantity
+    ) {
+      currentAssignment.completed++;
+      updateAssignmentStatus();
+      renderCurrentAssignment();
+
+      if (currentAssignment.completed === currentAssignment.quantity) {
+        logHuntMessage(`🎉 Assignment complete! Return to the Slayer Guild.`);
+      }
+    }
+
+      currentMonster = null;
+      monsterHP = 0;
+      document.getElementById("encounter-panel").style.display = "none";
+
+      updateStatus();
+      updateUsePotionButton();
+      return;
+    }
+
+    // === Monster's Turn ===
+	// Razoraptor punishes low-power players
+	let bonusAttack = 0;
+
+	if (currentMonster.name === "Razoraptor" && playerPower < 15) {
+	  logHuntMessage("⚠️ Razoraptor exploits your weakness and strikes harder!");
+	  bonusAttack = 5; // Razoraptor hits harder this turn
+	}
+	
+	const base = currentMonster.attack + bonusAttack;
+	// Ensure minimum variance of ±1
+	let monsterVariance = Math.max(1, Math.floor(base * 0.2));
+	let monsterMin = Math.max(1, base - monsterVariance);
+	let monsterMax = base + monsterVariance;
+
+    // Scale down monster damage if player is stronger
+    if (playerPower > base) {
+      const mitigation = Math.floor(playerPower * 0.1);
+      monsterMin = Math.max(1, monsterMin - mitigation);
+      monsterMax = Math.max(monsterMin + 1, monsterMax - mitigation);
+    }
+
+    const monsterDamage = Math.floor(Math.random() * (monsterMax - monsterMin + 1)) + monsterMin;
+    health -= monsterDamage;
+    if (health < 0) health = 0;
+
+    logHuntMessage(`${currentMonster.name} strikes back for ${monsterDamage} damage!`);
+
+    updateStatus();
+    updateUsePotionButton();
+
+    if (health <= 0) {
+	  currentMonster = null;
+	  clearHuntLog();
+	  monsterHP = 0;
+	  document.getElementById("encounter-panel").style.display = "none";
+	  updateMonsterUI();
+	  updateUsePotionButton();
+	  handlePlayerDefeat(); 
+	}
+  }
+  
+  function logHuntMessage(message) {
+    const log = document.getElementById("hunt-log");
+
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+    const entry = document.createElement("div");
+    entry.innerHTML = `[${timestamp}] ${message}`;
+    log.appendChild(entry);
+
+    // ✅ Keep only the last 5 log entries
+    while (log.children.length > 5) {
+      log.removeChild(log.firstChild);
+    }
+
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function clearHuntLog() {
+    const log = document.getElementById("hunt-log");
+    log.innerHTML = "";
+  }
+  
+  function updateUsePotionButton() {
+    const btn = document.getElementById("use-potion-btn");
+
+    if (equipment.potion && equipment.potion.quantity > 0) {
+      btn.textContent = `🧪 Use ${equipment.potion.name} (x${equipment.potion.quantity})`;
+
+      // ✅ Disable if at full health
+      if (health >= maxHealth) {
+        btn.disabled = true;
+        btn.title = "You are already at full health";
+      } else {
+        btn.disabled = false;
+        btn.title = "";
+      }
+    } else {
+      btn.textContent = "🧪 Use Potion";
+      btn.disabled = true; // ✅ Disable if nothing is equipped
+      btn.title = "No potion equipped";
+    }
+  }
+
+  function useEquippedPotion() {
+    const potion = equipment.potion;
+
+    if (!potion || potion.quantity <= 0) {
+      alert("No potion equipped!");
+      return;
+    }
+
+    if (potion.name === "Green Potion") {
+      const healAmount = Math.ceil(maxHealth * 0.10);
+      const before = health;
+      health = Math.min(health + healAmount, maxHealth);
+
+      logHuntMessage(`You used ${potion.name} and healed ${health - before} HP!`);
+
+      potion.quantity--;
+
+      if (potion.quantity <= 0) {
+        logHuntMessage(`You have no more ${potion.name}!`);
+        equipment.potion = null;
+      }
+
+      updateStatus();
+      updateEquipmentUI();
+      updateUsePotionButton();
+    }
+  }
+  
+  function handlePlayerDefeat() {
+    logHuntMessage("💀 You were defeated and are being evacuated to safety...");
+    switchTab('game');
+
+    isEvacuating = true;
+	document.getElementById("evac-overlay").style.display = "block";
+    document.body.classList.add("evac-disabled"); // 👈 lock clicks globally
+
+    currentAction = "Evacuating to safety";
+    document.getElementById("current-action").textContent = currentAction;
+
+    let progress = 0;
+    const bar = document.getElementById("progress-bar");
+    const duration = 30000;
+    const intervalTime = 100;
+    const increment = 100 / (duration / intervalTime);
+
+    const evacInterval = setInterval(() => {
+      progress += increment;
+      bar.style.width = progress + "%";
+
+      if (progress >= 100) {
+        clearInterval(evacInterval);
+        isEvacuating = false;
+		document.getElementById("evac-overlay").style.display = "none";
+        document.body.classList.remove("evac-disabled"); // 👈 re-enable
+
+        currentAction = null;
+        document.getElementById("current-action").textContent = "Idle";
+        bar.style.width = "0%";
+
+        health = Math.min(10, maxHealth);
+        logHuntMessage("✅ You have been revived with 10 HP.");
+        updateStatus();
+      }
+    }, intervalTime);
+  }
+  
+  function assignGuildTask() {
+    const hunterLevel = skills.hunter.level;
+    const resultEl = document.getElementById("assignment-result");
+
+    // ✅ Build list of unlocked monsters based ONLY on hunter level
+    const unlockedMonsters = Object.keys(monsters).filter(name => {
+      const m = monsters[name];
+      return m.required && hunterLevel >= m.required.hunterLevel;
+    });
+
+    if (unlockedMonsters.length === 0) {
+      resultEl.innerHTML = `<p>❌ You haven't unlocked any Slayer creatures yet.</p>`;
+      return;
+    }
+
+    // ✅ Pick one randomly
+    const chosen = unlockedMonsters[Math.floor(Math.random() * unlockedMonsters.length)];
+    const qty = Math.floor(Math.random() * 21) + 30; // 30–50
+
+    currentAssignment = {
+      creature: chosen,
+      quantity: qty,
+      completed: 0
+    };
+
+    resultEl.innerHTML = `
+      <p>✅ Assignment: Defeat <strong>${qty} ${chosen}</strong> for bonus Slayer Points.</p>
+      <p style="color: gray;">Progress: 0 / ${qty}</p>
+    `;
+
+    updateAssignmentStatus();
+    renderCurrentAssignment();
+    document.getElementById("get-task-btn").disabled = true;
+  }
+
+  function rerollSlayerTask() {
+    if (!currentAssignment || slayerPoints < 100) return;
+
+    slayerPoints -= 100;
+    assignGuildTask(); // ✅ reuse the existing assignment logic
+    updateStatus();
+    updateAssignmentStatus();
+    renderCurrentAssignment();
+  }
+
+  function updateAssignmentStatus() {
+    const statusEl = document.getElementById("slayer-assignment-status");
+
+    if (!statusEl) return;
+
+    if (currentAssignment) {
+      statusEl.textContent = `📜 Assignment: ${currentAssignment.creature} (${currentAssignment.completed} / ${currentAssignment.quantity})`;
+
+      if (currentAssignment.completed >= currentAssignment.quantity) {
+        statusEl.classList.add("assignment-complete");
+      } else {
+        statusEl.classList.remove("assignment-complete");
+      }
+    } else {
+      statusEl.textContent = "📜 Assignment: None";
+      statusEl.classList.remove("assignment-complete");
+    }
+  }
+
+  function renderCurrentAssignment() {
+    const resultEl = document.getElementById("assignment-result");
+
+    if (!resultEl) return;
+
+    if (currentAssignment) {
+      const progressColor = currentAssignment.completed >= currentAssignment.quantity ? "#d4af37" : "gray";
+
+      resultEl.innerHTML = `
+        <p>✅ Assignment: Defeat <strong>${currentAssignment.quantity} ${currentAssignment.creature}</strong> for bonus Slayer Points.</p>
+        <p style="color: ${progressColor};">Progress: ${currentAssignment.completed} / ${currentAssignment.quantity}</p>
+      `;
+      const completeBtn = document.getElementById("complete-task-btn");
+      if (completeBtn) {
+        if (!currentAssignment || !currentAssignment.creature) {
+          completeBtn.disabled = true;
+        } else {
+          completeBtn.disabled = currentAssignment.completed < currentAssignment.quantity;
+        }
+      }
+
+    } 
+    else {
+      resultEl.innerHTML = `<p>🎯 No current assignment.</p>`;
+    }
+
+    const rerollBtn = document.getElementById("reroll-task-btn");
+    if (rerollBtn) {
+      if (!currentAssignment) {
+        rerollBtn.disabled = true;
+      } else {
+        rerollBtn.disabled = slayerPoints < 100;
+      }
+    }
+
+    const getBtn = document.getElementById("get-task-btn");
+    if (getBtn) {
+      getBtn.disabled = !!currentAssignment;
+    }
+  }
+
+  function completeSlayerTask() {
+    if (!currentAssignment) return;
+
+    const monsterName = currentAssignment.creature;
+    const monster = monsters[monsterName];
+    const quantity = currentAssignment.quantity;
+    const hunterLevel = skills.hunter.level;
+
+    // Get the monster's required hunter level (difficulty baseline)
+    const monsterLevel = monster?.required?.hunterLevel || 1;
+
+    // Difficulty ratio: how hard this monster is for the player's level
+    const difficultyRatio = monsterLevel / Math.max(hunterLevel, 1);
+
+    // Calculate bonus Slayer Points
+    const baseReward = 5;
+    const bonus = Math.floor(baseReward * quantity * difficultyRatio * 0.1); // scaled with quantity and difficulty
+
+    slayerPoints += bonus;
+
+    logHuntMessage(`🎉 Task complete! You earned ${bonus} bonus Slayer Points!`);
+
+    // Clear the task
+    currentAssignment = null;
+
+    // Update all the UI
+    updateAssignmentStatus();
+    renderCurrentAssignment();
+    updateStatus();
+    // ✅ Disable the button after task is turned in
+    const completeBtn = document.getElementById("complete-task-btn");
+    if (completeBtn) {
+      completeBtn.disabled = true;
+    }
+
+    const rerollBtn = document.getElementById("reroll-task-btn");
+    if (rerollBtn) {
+    rerollBtn.disabled = true;
+    }
+  }
+  
+  function startRegenLoop() {
+    let regenTimer = 6;
+    let wasRegenActive = false;
+
+    setInterval(() => {
+      const canRegen = !currentMonster && !isEvacuating && health < maxHealth;
+
+      if (canRegen) {
+        regenTimer--;
+
+        const countdownEl = document.getElementById("regen-countdown");
+        if (countdownEl) {
+          countdownEl.textContent = `(Next regen in ${regenTimer}s)`;
+        }
+
+        if (regenTimer <= 0) {
+          health += 1;
+          if (health > maxHealth) health = maxHealth;
+
+          //logHuntMessage("💚 You regenerated 1 HP.");
+          updateStatus();
+          updateUsePotionButton();
+          regenTimer = 6;
+        }
+
+        wasRegenActive = true;
+      } else {
+        if (wasRegenActive) {
+          regenTimer = 6;
+        }
+
+        const countdownEl = document.getElementById("regen-countdown");
+        if (countdownEl) {
+          countdownEl.textContent = "";
+        }
+
+        wasRegenActive = false;
+      }
+    }, 1000);
+  }
+  
+  function setupAccordion(tabId) {
+    const tab = document.getElementById(`${tabId}-tab`);
+    if (!tab) return;
+
+    const allDetails = tab.querySelectorAll("details");
+
+    allDetails.forEach(d => {
+      d.addEventListener("toggle", () => {
+        if (d.open) {
+          allDetails.forEach(other => {
+            if (other !== d) {
+              other.open = false;
+            }
+          });
+        }
+      });
+    });
+  }
+  
+  function saveGame() {
+    const gameData = {
+      version: "0.1.2", // or your current version
+      inventory,
+      skills,
+      equipment,
+      energy,
+      health,
+      money,
+      currentAssignment,
+      slayerPoints
+    };
+
+    localStorage.setItem("KaijuRPG_Save", JSON.stringify(gameData));
+
+    const now = new Date();
+    const isoString = now.toISOString();
+    localStorage.setItem("KaijuRPG_LastSaved", isoString);
+
+    // You can still display the readable time
+    const readable = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const lastSavedEl = document.getElementById("last-saved-local");
+    if (lastSavedEl) lastSavedEl.textContent = readable;
+
+    // Update Save Tab status (you may already have this)
+    const statusEl = document.getElementById("save-status");
+    if (statusEl) {
+      statusEl.textContent = `Game saved at ${readable}`;
+    }
+
+    // ✅ And update the Player Status Panel UI
+    if (lastSavedEl) {
+      lastSavedEl.textContent = timeString;
+    }
+  }
+  
+  function loadGame() {
+    const saved = localStorage.getItem("KaijuRPG_Save");
+    if (!saved) return;
+
+    try {
+      const data = JSON.parse(saved);
+
+      //check version
+      const version = data.version || "0.0.x";
+
+      //defensive loading with fallbacks
+      inventory = data.inventory || {};
+      skills = { ...skills, ...(data.skills || {}) };
+      equipment = { ...equipment, ...(data.equipment || {}) };
+      energy = data.energy ?? 100;
+      health = data.health ?? 100;
+      money = data.money ?? 0;
+      currentAssignment = data.currentAssignment || null;
+      updateAssignmentStatus();
+      renderCurrentAssignment();
+      slayerPoints = data.slayerPoints ?? 0;
+
+      updateStatus();
+      updateEquipmentUI();
+      updateUsePotionButton();
+      updateForgeLocks();
+
+      for (let skill in skills) updateSkillUI(skill);
+
+      renderInventory();
+
+      // ✅ Load last saved time
+      const last = localStorage.getItem("KaijuRPG_LastSaved");
+        if (last) {
+          const readable = new Date(last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          document.getElementById("last-saved-local").textContent = readable;
+        }
+
+      console.log("Game loaded from version:", version);
+    } catch (e) {
+      console.error("Save data corrupted or incompatible:", e);
+    }
+  }
+
+  function resetSave() {
+    const confirmReset = confirm("Are you sure you want to reset your save? This cannot be undone.");
+
+    if (confirmReset) {
+      localStorage.removeItem("KaijuRPG_Save");
+      location.reload(); // reload to start fresh
+    }
+
+    renderCurrentAssignment();
+
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    loadGame();
+	  updateStatus();
+    updateEquipmentUI();
+    updateSkillUI("hunter");
+	  setupAccordion("hunt");
+	  setupAccordion("forging");
+	  updateForgeLocks();
+    updateUsePotionButton();
+    startRegenLoop();
+  });
+
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAEDUd-w52zCwwh7KZ2kx-ubIRX25jFMZs",
+        authDomain: "kaijurpg-21454.firebaseapp.com",
+        databaseURL: "https://kaijurpg-21454-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "kaijurpg-21454",
+        storageBucket: "kaijurpg-21454.firebasestorage.app",
+        messagingSenderId: "772939855563",
+        appId: "1:772939855563:web:e58489b31badc0e6958d4e"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function saveToCloud(userId) {
+      if (!userId) {
+        alert("You're not signed in. Please sign in with Google first.");
+        return;
+      }
+
+      const gameData = {
+        version: "0.1.2",
+        inventory,
+        skills,
+        equipment,
+        energy,
+        health,
+        money,
+        currentAssignment,
+        slayerPoints,
+        savedAt: new Date().toISOString()
+      };
+
+      db.ref("saves/" + userId).set(gameData)
+        .then(() => {
+          alert("✅ Game saved to the cloud!");
+    
+          const now = new Date();
+          const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+          const cloudSavedEl = document.getElementById("last-saved-cloud");
+          if (cloudSavedEl) cloudSavedEl.textContent = timeString;
+
+          // Also store it in localStorage to restore on login
+          localStorage.setItem("KaijuRPG_LastCloudSaved", timeString);
+        })
+        .catch(err => console.error("Cloud save failed:", err));
+    }
+
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          const user = result.user;
+          currentUserUID = user.uid;
+
+          document.getElementById("user-name").textContent = user.displayName;
+          document.getElementById("cloud-save-btn").disabled = false;
+
+          // ✅ Compare timestamps and load the most recent save
+          resolveSaveConflict(currentUserUID);
+        })
+        .catch((error) => {
+          console.error("Google Sign-in Failed:", error);
+        });
+    }
+
+    function loadFromCloud(userId) {
+        if (!userId) {
+            alert("Please enter a Save ID before loading.");
+            return;
+        }
+
+        db.ref("saves/" + userId).get().then(snapshot => {
+            if (!snapshot.exists()) {
+            alert("❌ No cloud save found for this ID.");
+            return;
+            }
+
+            const data = snapshot.val();
+            if (data.savedAt) {
+              const time = new Date(data.savedAt);
+              const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+              const cloudSavedEl = document.getElementById("last-saved-cloud");
+              if (cloudSavedEl) cloudSavedEl.textContent = timeString;
+
+              // Save it for later
+              localStorage.setItem("KaijuRPG_LastCloudSaved", timeString);
+            }
+
+            inventory = data.inventory || {};
+            skills = { ...skills, ...(data.skills || {}) };
+            equipment = { ...equipment, ...(data.equipment || {}) };
+            energy = data.energy ?? energy;
+            health = data.health ?? health;
+            money = data.money ?? money;
+            currentAssignment = data.currentAssignment || null;
+            updateAssignmentStatus();
+            renderCurrentAssignment();
+            slayerPoints = data.slayerPoints ?? slayerPoints;
+
+            updateStatus();
+            updateEquipmentUI();
+            updateUsePotionButton();
+            updateForgeLocks();
+            for (let skill in skills) updateSkillUI(skill);
+            renderInventory();
+
+            alert(`✅ Game loaded from the cloud! Last saved: ${data.savedAt}`);
+        }).catch(err => console.error("Cloud load failed:", err));
+    }
+
+    function resolveSaveConflict(uid) {
+      if (!uid) {
+        console.log("🧪 Not signed in. Loading local save.");
+        loadGame();
+        return;
+      }
+
+      const localTime = localStorage.getItem("KaijuRPG_LastSaved");
+      const cloudRef = db.ref("saves/" + uid);
+
+      cloudRef.get().then(snapshot => {
+        if (!snapshot.exists()) {
+          console.log("☁️ No cloud save found. Loading local.");
+          loadGame();
+          return;
+        }
+
+        const cloudData = snapshot.val();
+        const cloudTime = cloudData?.savedAt;
+
+        if (!cloudTime) {
+          console.log("☁️ Cloud save is missing timestamp. Loading local.");
+          loadGame();
+          return;
+        }
+
+        const localDate = localTime ? new Date(localTime) : null;
+        const cloudDate = cloudTime ? new Date(cloudTime) : null;
+
+        if (
+          localTime && cloudTime &&
+          !isNaN(new Date(localTime).getTime()) &&
+          !isNaN(new Date(cloudTime).getTime())
+        ) {
+          document.getElementById("modal-local-time").textContent = new Date(localTime).toLocaleTimeString([], {
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+          });
+
+          document.getElementById("modal-cloud-time").textContent = new Date(cloudTime).toLocaleTimeString([], {
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+          });
+
+          // Helper functions
+          const getSkillSum = (skillObj) => {
+            return Object.values(skillObj || {}).reduce((total, s) => total + (s.level || 0), 0);
+          };
+          const getItemCount = (inv) => {
+            return Object.values(inv || {}).reduce((sum, amt) => sum + amt, 0);
+          };
+
+          // Local values
+          document.getElementById("modal-local-skills").textContent = getSkillSum(skills);
+          document.getElementById("modal-local-items").textContent = getItemCount(inventory);
+          document.getElementById("modal-local-slayer").textContent = slayerPoints;
+
+          // Cloud values
+          document.getElementById("modal-cloud-skills").textContent = getSkillSum(cloudData.skills);
+          document.getElementById("modal-cloud-items").textContent = getItemCount(cloudData.inventory);
+          document.getElementById("modal-cloud-slayer").textContent = cloudData.slayerPoints || 0;
+
+          // 💰 Money
+          document.getElementById("modal-local-money").textContent = `$${money.toFixed(2)}`;
+          document.getElementById("modal-cloud-money").textContent = `$${(cloudData.money || 0).toFixed(2)}`;
+
+          // ⚔️ Power Level (supports external comparison)
+          const calculatePowerLevelFromEquip = (equip = {}) => {
+            let power = 0;
+            for (let slot in equip) {
+              const item = equip[slot];
+              if (item && gearStats[item]) {
+                power += gearStats[item].power;
+              }
+            }
+            return power;
+          };
+
+          document.getElementById("modal-local-power").textContent = calculatePowerLevel();
+          document.getElementById("modal-cloud-power").textContent = calculatePowerLevelFromEquip(cloudData.equipment);
+
+          // 🎯 Assignment
+          const formatAssignment = (a) => {
+            if (!a || !a.creature) return "None";
+            return `${a.creature}: ${a.completed} / ${a.quantity}`;
+          };
+
+          document.getElementById("modal-local-assignment").textContent = formatAssignment(currentAssignment);
+          document.getElementById("modal-cloud-assignment").textContent = formatAssignment(cloudData.currentAssignment);
+
+          // 🛡️ Gear
+          const fillGearRow = (gear, prefix) => {
+            const slots = ["helmet", "armor", "weapon", "accessory", "potion"];
+            slots.forEach(slot => {
+              const el = document.getElementById(`gear-${prefix}-${slot}`);
+              if (el) {
+                el.textContent = gear?.[slot] || "None";
+              }
+            });
+          };
+
+          // Local
+          fillGearRow(equipment, "local");
+
+          // Cloud
+          fillGearRow(cloudData.equipment, "cloud");
+
+          pendingCloudSnapshot = cloudData;
+          pendingCloudUID = uid;
+
+          document.getElementById("save-conflict-modal").style.display = "flex";
+        } else if (cloudDate) {
+          alert("☁️ Only cloud save found. Loading cloud.");
+          loadFromCloud(uid);
+        } else if (localDate) {
+          alert("💾 Only local save found. Loading local.");
+          loadGame();
+        } else {
+          alert("🚫 No save found. Starting fresh.");
+          updateStatus();
+          updateEquipmentUI();
+          updateUsePotionButton();
+          updateForgeLocks();
+          renderInventory();
+        }
+      }).catch(err => {
+        console.error("Error during save conflict check:", err);
+        loadGame(); // fallback
+      });
+    }
+
+    function loadSelectedSave(choice) {
+      document.getElementById("save-conflict-modal").style.display = "none";
+
+      if (choice === "cloud" && pendingCloudSnapshot && pendingCloudUID) {
+        // manually inject cloud data into load logic
+        const data = pendingCloudSnapshot;
+
+        inventory = data.inventory || {};
+        skills = { ...skills, ...(data.skills || {}) };
+        equipment = { ...equipment, ...(data.equipment || {}) };
+        energy = data.energy ?? energy;
+        health = data.health ?? health;
+        money = data.money ?? money;
+        slayerPoints = data.slayerPoints ?? slayerPoints;
+
+        updateStatus();
+        updateEquipmentUI();
+        updateUsePotionButton();
+        updateForgeLocks();
+        for (let skill in skills) updateSkillUI(skill);
+        renderInventory();
+
+        const cloudSavedEl = document.getElementById("last-saved-cloud");
+        if (cloudSavedEl && data.savedAt) {
+          cloudSavedEl.textContent = new Date(data.savedAt).toLocaleTimeString([], {
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+          });
+        }
+
+        alert("☁️ Loaded cloud save.");
+      } else {
+        loadGame();
+        alert("💾 Loaded local save.");
+      }
+
+      // Reset for future sign-ins
+      pendingCloudSnapshot = null;
+      pendingCloudUID = null;
+    }
+
+</script>
+
+<div id="evac-overlay" style="
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* semi-transparent black */
+  z-index: 9999;
+  pointer-events: none;
+  display: none;">
+ </div>
+
+<!-- Save Conflict Modal -->
+<div id="save-conflict-modal" style="display: none; position: fixed; top: 0; left: 0; 
+  width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 99999; 
+  align-items: center; justify-content: center; font-family: sans-serif;">
+
+
+  <div style="background: white; padding: 24px 36px; border-radius: 12px; width: 600px; max-width: 90vw; text-align: center;">
+    <h3>🧠 Save Conflict</h3>
+    <p>You have both a <strong>Local</strong> and a <strong>Cloud</strong> save.</p>
+    <p>Local: <span id="modal-local-time">--:--</span></p>
+    <p>Cloud: <span id="modal-cloud-time">--:--</span></p>
+    <table style="margin: 10px auto; font-size: 0.9em;">
+      <tr>
+        <th></th>
+        <th>💾 Local</th>
+        <th>☁️ Cloud</th>
+      </tr>
+      <tr>
+        <td>🎯 Assignment</td>
+        <td id="modal-local-assignment">--</td>
+        <td id="modal-cloud-assignment">--</td>
+      </tr>
+      <tr>
+        <td>🏋️ Total Skill Level</td>
+        <td id="modal-local-skills">--</td>
+        <td id="modal-cloud-skills">--</td>
+      </tr>
+      <tr>
+        <td>⚔️ Power Level</td>
+        <td id="modal-local-power">--</td>
+        <td id="modal-cloud-power">--</td>
+      </tr>
+      <tr>
+        <td>🎒 Inventory Items</td>
+        <td id="modal-local-items">--</td>
+        <td id="modal-cloud-items">--</td>
+      </tr>
+      <tr>
+        <td>🎯 Slayer Points</td>
+        <td id="modal-local-slayer">--</td>
+        <td id="modal-cloud-slayer">--</td>
+      </tr>
+      <tr>
+        <td>💰 Money</td>
+        <td id="modal-local-money">--</td>
+        <td id="modal-cloud-money">--</td>
+      </tr>
+      <tr><td rowspan="6">🛡️ Gear</td>
+        <td><strong>Helmet:</strong> <span id="gear-local-helmet">--</span></td>
+        <td><strong>Helmet:</strong> <span id="gear-cloud-helmet">--</span></td>
+      </tr>
+      <tr>
+        <td><strong>Armor:</strong> <span id="gear-local-armor">--</span></td>
+        <td><strong>Armor:</strong> <span id="gear-cloud-armor">--</span></td>
+      </tr>
+      <tr>
+        <td><strong>Weapon:</strong> <span id="gear-local-weapon">--</span></td>
+        <td><strong>Weapon:</strong> <span id="gear-cloud-weapon">--</span></td>
+      </tr>
+      <tr>
+        <td><strong>Accessory:</strong> <span id="gear-local-accessory">--</span></td>
+        <td><strong>Accessory:</strong> <span id="gear-cloud-accessory">--</span></td>
+      </tr>
+      <tr>
+        <td><strong>Potion:</strong> <span id="gear-local-potion">--</span></td>
+        <td><strong>Potion:</strong> <span id="gear-cloud-potion">--</span></td>
+      </tr>     
+    </table>    
+
+    <div style="margin-top: 20px;">
+      <button onclick="loadSelectedSave('local')" style="padding: 10px 16px; margin-right: 10px;">💾 Load Local</button>
+      <button onclick="loadSelectedSave('cloud')" style="padding: 10px 16px;">☁️ Load Cloud</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
