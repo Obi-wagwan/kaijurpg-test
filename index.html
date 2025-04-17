@@ -27,12 +27,20 @@
     #top-action-bar {position: sticky; top: 0; z-index: 998; background: #fff; display: flex; justify-content: space-between; gap: 10px; padding: 12px 12px; border-bottom: 2px solid #ddd; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);}
     #top-action-bar button {flex: 1; font-size: 1.1em; padding: 12px 0; border: 2px solid transparent; background-color: #eee; font-weight: bold; color: #333; border-radius: 8px; transition: background 0.2s ease;}
     #top-action-bar button.active {background-color: #fff3e0; border-color: #ffa726; color: #e65100; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1) inset;}
+    #status-hud {position: sticky; top: 72px; /* adjust based on the height of your top tabs */ z-index: 997; background: white; padding: 0 10px; border-bottom: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
 
     #test-banner {background-color: #ffcc00; color: #222; font-weight: bold; padding: 10px 0; text-align: center; font-size: 1rem; border-bottom: 2px solid #e5b800; position: sticky; top: 0; z-index: 9999;}
 
 @keyframes pulse {
   0% { opacity: 1; }
   100% { opacity: 0.8; }
+}
+
+@media (max-width: 600px) {
+  #status-hud {
+    font-size: 0.85em;
+    padding: 0 6px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -98,54 +106,40 @@
 </div>
 
   <!-- SHARED PLAYER STATUS PANEL -->
-  <div class="panel player-status" style="margin-bottom: 20px;">
-	  <div class="status-row">
-		💪 Power Level: <span id="power-level">0</span>
-	  </div>
-	  
-	  <div class="status-row">
-		🌀 Status Effects: <span id="status-effects">None</span>
-	  </div>
-	  
-	  <div class="status-row">
-		❤️ Health: <span id="health">100</span>/<span id="max-health">100</span>
-		<span id="regen-countdown" style="font-size: 0.85em; color: #27ae60; margin-left: 6px;"></span>
-	  </div>
-	  <div class="status-row">
-		<div class="progress-container" style="margin-top: 5px;">
-		  <div class="progress-bar" id="health-bar" style="background-color: #e53935;"></div>
-		</div>
-	  </div>
-
-	  <div class="status-row">
-		⚡ Energy: <span id="energy">100</span>/100
-		<button id="recharge-button" onclick="startRecharge()" style="margin-left: 10px;">Recharge</button>
-	  </div>
-	  
-	  <div class="status-row">
-		<div class="progress-container" style="margin-top: 5px;">
-		  <div class="progress-bar" id="energy-bar" style="background-color: #2196F3;"></div>
-		</div>
-	  </div>
-	  
-	  <div class="status-row">
-		💰 Money: $<span id="money">0.00</span>
-	  </div>
-		
-	  <div class="status-row">
-		🎯 Slayer Points: <span id="slayer-points">0</span>
-	  </div>
-
-    <div class="status-row" id="slayer-assignment-status">
-      📜 Assignment: None
-    </div>    
-
-    <div class="status-row" style="font-size: 0.9em; color: gray;">
-      ⏱ Last Saved (Local): <span id="last-saved-local">Never</span>
-      <br>
-      ☁️ Last Saved (Cloud): <span id="last-saved-cloud">Never</span>
-    </div>    
-  </div>
+  <div id="status-hud">
+    <div class="panel player-status" style="margin-bottom: 0;">
+      <div class="status-row">💪 Power Level: <span id="power-level">0</span></div>
+      <div class="status-row">🌀 Status Effects: <span id="status-effects">None</span></div>
+  
+      <div class="status-row">
+        ❤️ Health: <span id="health">100</span>/<span id="max-health">100</span>
+        <span id="regen-countdown" style="font-size: 0.85em; color: #27ae60; margin-left: 6px;"></span>
+      </div>
+      <div class="status-row">
+        <div class="progress-container" style="margin-top: 5px;">
+          <div class="progress-bar" id="health-bar" style="background-color: #e53935;"></div>
+        </div>
+      </div>
+  
+      <div class="status-row">
+        ⚡ Energy: <span id="energy">100</span>/100
+        <button id="recharge-button" onclick="startRecharge()" style="margin-left: 10px;">Recharge</button>
+      </div>
+      <div class="status-row">
+        <div class="progress-container" style="margin-top: 5px;">
+          <div class="progress-bar" id="energy-bar" style="background-color: #2196F3;"></div>
+        </div>
+      </div>
+  
+      <div class="status-row">💰 Money: $<span id="money">0.00</span></div>
+      <div class="status-row">🎯 Slayer Points: <span id="slayer-points">0</span></div>
+      <div class="status-row" id="slayer-assignment-status">📜 Assignment: None</div>
+      <div class="status-row" style="font-size: 0.9em; color: gray;">
+        ⏱ Last Saved (Local): <span id="last-saved-local">Never</span><br>
+        ☁️ Last Saved (Cloud): <span id="last-saved-cloud">Never</span>
+      </div>
+    </div>
+  </div> 
 
 <div id="bottom-tab-bar" class="tab-buttons">
   <button class="active" onclick="switchTab('game')">Main</button>
