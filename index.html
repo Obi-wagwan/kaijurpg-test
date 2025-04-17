@@ -921,7 +921,10 @@
 	  document.getElementById("max-health").textContent = maxHealth;
 	  document.getElementById("health-bar").style.width = (health / maxHealth * 100) + "%";
 	  document.getElementById("power-level").textContent = calculatePowerLevel();
-	  document.getElementById("status-effects").textContent = statusEffects.length > 0 ? statusEffects.join(", ") : "None";
+	  const statusEl = document.getElementById("status-effects");
+    if (statusEl) {
+      statusEl.textContent = statusEffects.length > 0 ? statusEffects.join(", ") : "None";
+    }
     document.getElementById("hud-health").textContent = health;
     document.getElementById("hud-max-health").textContent = maxHealth;
     document.getElementById("hud-energy").textContent = energy;
