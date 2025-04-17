@@ -31,8 +31,9 @@
 
     .bar-group {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
     }
 
     #top-nav-bar {
@@ -166,6 +167,7 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
+      margin-top: 4px;
       margin-bottom: 6px;
       width: 100%;
       box-sizing: border-box;
@@ -173,7 +175,8 @@
 
     .progress-container.short {
       height: 12px;
-      width: 150px;
+      min-width: 100px;
+      width: clamp(120px, 15vw, 180px);
       background: #ddd;
       border-radius: 6px;
       overflow: hidden;
