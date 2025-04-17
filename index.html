@@ -693,11 +693,14 @@
           clearInterval(interval);
           completeAction(currentAction);
 
-          // ✅ Post-completion: check whether we can continue
           if (!canContinueAction(currentAction)) {
-            stopAction(); // stop cleanly
+            stopAction();
             return;
           }
+
+          // ✅ Reset before next loop
+          progress = 0;
+          bar.style.width = "0%";
 
           setTimeout(runActionLoop, 0);
         }
