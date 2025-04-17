@@ -28,6 +28,7 @@
     #slayer-assignment-status {font-size: 0.9em; color: gray;}
     .assignment-complete {color: #d4af37 !important; /* ✨ GOLD */ font-weight: bold;animation: pulse 1s ease-in-out infinite alternate;}
     #complete-task-btn:enabled {background-color: #d4af37; font-weight: bold; color: white;}
+    #bottom-tab-bar {position: fixed; bottom: 0; left: 0; width: 100%; background-color: #f2f2f2; padding: 10px; display: flex; justify-content: center; gap: 6px; z-index: 999; border-top: 2px solid #ccc; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);}
 
     #test-banner {background-color: #ffcc00; color: #222; font-weight: bold; padding: 10px 0; text-align: center; font-size: 1rem; border-bottom: 2px solid #e5b800; position: sticky; top: 0; z-index: 9999;}
 
@@ -151,7 +152,7 @@
     </div>    
   </div>
 
-<div class="tab-buttons" style="margin-top: 10px;">
+<div id="bottom-tab-bar" class="tab-buttons">
   <button class="active" onclick="switchTab('game')">Main</button>
   <button onclick="switchTab('gear')">Gear</button>
   <button onclick="switchTab('skills')">Skills</button>
