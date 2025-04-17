@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>testbuild-KaijuRPG v0.1.3</title>
   <style>
-    body { font-family: sans-serif; background: #f4f4f4; padding: 70px; padding-bottom: 300px;}
+    body { font-family: sans-serif; background: #f4f4f4; padding-top: 120px; padding-bottom: 300px;}
     .tab-buttons button {
       margin-right: 10px;
       padding: 10px 20px;
@@ -103,6 +103,32 @@
       cursor: pointer;
     }
 
+    #nav-action-wrapper {
+      width: 100%;
+      padding-top: 8px;
+      border-top: 1px solid #ddd;
+    }
+
+    #current-action-label {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    #top-nav-bar .progress-container {
+      height: 14px;
+      border-radius: 8px;
+      background-color: #ddd;
+      overflow: hidden;
+      margin-top: 2px;
+      margin-bottom: 8px;
+    }
+
+    #top-nav-bar .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #4caf50;
+    }
+
   </style>
 
   <!-- Firebase SDK -->
@@ -121,32 +147,19 @@
 
   <div id="nav-logo">KaijuRPG</div>
 
+  <div id="nav-action-wrapper">
+    <div id="current-action-label">Action: <span id="current-action">Idle</span></div>
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+  </div>  
+
   <div class="nav-right">
     <button onclick="switchTab('resources')">Resources</button>
     <button onclick="switchTab('refining')">Refining</button>
     <button onclick="switchTab('forging')">Forging</button>
   </div>
 </header>
-
-<div class="panel" id="action-panel" style="position: relative; z-index: 10000; box-shadow: 0 0 20px #fff;">
-  <h3>Current Action: <span id="current-action">Idle</span></h3>
-  <div class="progress-container">
-    <div class="progress-bar" id="progress-bar"></div>
-  </div>
-
-  <!-- Bigger Stop Button -->
-  <div style="text-align: center; margin-top: 10px;">
-    <button id="stop-button" onclick="stopAction()" style="
-      padding: 10px 20px;
-      font-size: 1.1em;
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    ">🛑 Stop</button>
-  </div>
-</div>
 
 <div style="display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 15px; gap: 10px;">
 	<button id="tab-hunt" style="
