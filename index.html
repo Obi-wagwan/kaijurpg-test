@@ -72,37 +72,6 @@
       flex: 0 0 auto;
     }
 
-    #bottom-hud {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      border-top: 2px solid #ccc;
-      padding: 10px 16px;
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      font-size: 0.85em;
-      z-index: 9999;
-      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
-    }
-
-    .hud-column {
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .hud-column button {
-      margin-top: 6px;
-      padding: 6px 12px;
-      font-weight: bold;
-      border: 1px solid #ccc;
-      background: #f5f5f5;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
     #nav-action-wrapper {
       position: fixed;
       top: 50px; /* just under top nav */
@@ -134,6 +103,89 @@
       height: 100%;
       width: 0%;
       background: #4caf50;
+    }
+
+    #bottom-hud {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 2px solid #ccc;
+      padding: 10px 16px;
+      font-size: 0.85em;
+      z-index: 9999;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .hud-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .hud-stat-block {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .gear-summary-btn {
+      background: #f8f8f8;
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+      font-size: 0.85em;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .hud-assignment {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .hud-bars {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .progress-container.short {
+      height: 12px;
+      width: 150px;
+      background: #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .hud-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .hud-buttons button {
+      padding: 6px 12px;
+      font-weight: bold;
+      border: 1px solid #ccc;
+      background: #f0f0f0;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
   </style>
@@ -2129,38 +2181,51 @@
 </div>
 
 <footer id="bottom-hud">
-  <div class="hud-column left">
-    <div>💪 Power Level: <span id="power-level">0</span></div>
-    <div>💰 Money: $<span id="money">0.00</span></div>
-    <div>🎯 Slayer Points: <span id="slayer-points">0</span></div>
-    <div>⏱ Local: <span id="last-saved-local">Never</span></div>
-    <div>☁️ Cloud: <span id="last-saved-cloud">Never</span></div>
+  <!-- Row 1: Key Stats + Gear Summary + Assignment -->
+  <div class="hud-row">
+    <div class="hud-stat-block">
+      💪 <span id="power-level">0</span>
+      💰 $<span id="money">0.00</span>
+      🎯 <span id="slayer-points">0</span>
+    </div>
+
+    <button class="gear-summary-btn" onclick="switchTab('gear')">
+      🛡️ Gear:
+      <span id="gear-hud-helmet">None</span>,
+      <span id="gear-hud-armor">None</span>,
+      <span id="gear-hud-weapon">None</span>,
+      <span id="gear-hud-accessory">None</span>
+    </button>
+
+    <div class="hud-assignment">
+      📜 <span id="hud-assignment">None</span>
+    </div>
   </div>
 
-  <div class="hud-column middle">
-    <div>🛡️ Gear Summary:</div>
-    <div>Helmet: <span id="gear-hud-helmet">None</span></div>
-    <div>Armor: <span id="gear-hud-armor">None</span></div>
-    <div>Weapon: <span id="gear-hud-weapon">None</span></div>
-    <div>Accessory: <span id="gear-hud-accessory">None</span></div>
-    <div>Potion: <span id="gear-hud-potion">None</span></div>
-    <br>
-    ❤️ Health: <span id="hud-health">100</span>/<span id="hud-max-health">100</span>
-    <div class="progress-container"><div class="progress-bar" id="hud-health-bar" style="background-color: #e53935; width: 100%;"></div></div>
+  <!-- Row 2: Health + Energy Bars -->
+  <div class="hud-bars">
+    ❤️ <span id="hud-health">100</span>/<span id="hud-max-health">100</span>
+    <div class="progress-container short">
+      <div class="progress-bar" id="hud-health-bar" style="background-color: #e53935;"></div>
+    </div>
 
-    ⚡ Energy: <span id="hud-energy">100</span>/100
+    ⚡ <span id="hud-energy">100</span>/100
+    <div class="progress-container short">
+      <div class="progress-bar" id="hud-energy-bar" style="background-color: #2196F3;"></div>
+    </div>
+
     <button onclick="startRecharge()">Recharge</button>
-    <div class="progress-container"><div class="progress-bar" id="hud-energy-bar" style="background-color: #2196F3; width: 100%;"></div></div>
   </div>
 
-  <div class="hud-column right">
-    <div>📜 Assignment: <span id="hud-assignment">None</span></div>
-    <button onclick="stopAction()">Stop Action</button>
+  <!-- Row 3: Buttons -->
+  <div class="hud-buttons">
     <button onclick="switchTab('gear')">Gear</button>
-    <button onclick="switchTab('hunt')">HUNT</button>
+    <button onclick="switchTab('hunt')">Hunt</button>
     <button onclick="switchTab('slayer')">Slayer Guild</button>
+    <button onclick="stopAction()">Stop</button>
   </div>
 </footer>
+
 
 </body>
 </html>
