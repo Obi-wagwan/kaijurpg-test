@@ -104,26 +104,33 @@
     }
 
     #nav-action-wrapper {
+      position: fixed;
+      top: 50px; /* just under top nav */
+      left: 0;
       width: 100%;
-      padding-top: 8px;
-      border-top: 1px solid #ddd;
+      background: #fff;
+      padding: 8px 16px;
+      border-bottom: 2px solid #ccc;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      z-index: 9998;
     }
 
     #current-action-label {
       font-weight: bold;
       margin-bottom: 4px;
+      text-align: center;
     }
 
-    #top-nav-bar .progress-container {
+    #nav-action-wrapper .progress-container {
       height: 14px;
       border-radius: 8px;
       background-color: #ddd;
       overflow: hidden;
-      margin-top: 2px;
-      margin-bottom: 8px;
+      margin: 4px auto;
+      max-width: 800px;
     }
 
-    #top-nav-bar .progress-bar {
+    #nav-action-wrapper .progress-bar {
       height: 100%;
       width: 0%;
       background: #4caf50;
@@ -147,19 +154,19 @@
 
   <div id="nav-logo">KaijuRPG</div>
 
-  <div id="nav-action-wrapper">
-    <div id="current-action-label">Action: <span id="current-action">Idle</span></div>
-    <div class="progress-container">
-      <div class="progress-bar" id="progress-bar"></div>
-    </div>
-  </div>  
-
   <div class="nav-right">
     <button onclick="switchTab('resources')">Resources</button>
     <button onclick="switchTab('refining')">Refining</button>
     <button onclick="switchTab('forging')">Forging</button>
   </div>
 </header>
+
+<div id="nav-action-wrapper">
+  <div id="current-action-label">Action: <span id="current-action">Idle</span></div>
+  <div class="progress-container">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+</div>  
 
 <div style="display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 15px; gap: 10px;">
 	<button id="tab-hunt" style="
