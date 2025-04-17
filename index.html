@@ -13,7 +13,7 @@
       border-radius: 5px;
       cursor: pointer;
     }
-	.status-row {margin-bottom: 8px;}
+	  .status-row {margin-bottom: 8px;}
     .tab-buttons button.active { background: #4caf50; color: white; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
@@ -28,6 +28,8 @@
     #slayer-assignment-status {font-size: 0.9em; color: gray;}
     .assignment-complete {color: #d4af37 !important; /* ✨ GOLD */ font-weight: bold;animation: pulse 1s ease-in-out infinite alternate;}
     #complete-task-btn:enabled {background-color: #d4af37; font-weight: bold; color: white;}
+
+    #test-banner {background-color: #ffcc00; color: #222; font-weight: bold; padding: 10px 0; text-align: center; font-size: 1rem; border-bottom: 2px solid #e5b800; position: sticky; top: 0; z-index: 9999;}
 
 @keyframes pulse {
   0% { opacity: 1; }
@@ -44,6 +46,8 @@
 
 </head>
 <body>
+
+<div id="test-banner">🧪 You are playing a <strong>TEST BUILD</strong> (v0.1.3) – Progress may be reset!</div>  
 
 <div class="panel" id="action-panel" style="position: relative; z-index: 10000; box-shadow: 0 0 20px #fff;">
   <h3>Current Action: <span id="current-action">Idle</span></h3>
@@ -383,6 +387,11 @@
 </div>
 
 <script>
+  if (!location.hostname.startsWith("test.")) {
+    const banner = document.getElementById("test-banner");
+    if (banner) banner.style.display = "none";
+  }
+
   let currentUserUID = null;
   let pendingCloudSnapshot = null;
   let pendingCloudUID = null;
