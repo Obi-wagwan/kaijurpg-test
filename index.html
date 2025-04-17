@@ -29,6 +29,12 @@
     .assignment-complete {color: #d4af37 !important; /* ✨ GOLD */ font-weight: bold;animation: pulse 1s ease-in-out infinite alternate;}
     #complete-task-btn:enabled {background-color: #d4af37; font-weight: bold; color: white;}
 
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
     #top-nav-bar {
       position: fixed;
       top: 0;
@@ -2214,18 +2220,22 @@
 
   <!-- Row 2: Health + Energy Bars -->
   <div class="hud-bars">
-    ❤️ <span id="hud-health">100</span>/<span id="hud-max-health">100</span>
-    <div class="progress-container short">
-      <div class="progress-bar" id="hud-health-bar" style="background-color: #e53935;"></div>
+    <div class="bar-group">
+      ❤️ <span id="hud-health">100</span>/<span id="hud-max-health">100</span>
+      <div class="progress-container short">
+        <div class="progress-bar" id="hud-health-bar" style="background-color: #e53935;"></div>
+      </div>
     </div>
-
-    ⚡ <span id="hud-energy">100</span>/100
-    <div class="progress-container short">
-      <div class="progress-bar" id="hud-energy-bar" style="background-color: #2196F3;"></div>
+  
+    <div class="bar-group">
+      ⚡ <span id="hud-energy">100</span>/100
+      <div class="progress-container short">
+        <div class="progress-bar" id="hud-energy-bar" style="background-color: #2196F3;"></div>
+      </div>
     </div>
-
-    <button id='recharge-button' onclick="startRecharge()">Recharge</button>
-  </div>
+  
+    <button id="recharge-button" onclick="startRecharge()">Recharge</button>
+  </div>  
 
   <!-- Row 3: Buttons -->
   <div class="hud-buttons">
