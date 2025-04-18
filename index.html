@@ -2066,7 +2066,8 @@
       observer.observe(hud);
     }
 
-    safeAssignmentUpdate();
+    setTimeout(() => safeAssignmentUpdate(), 500);
+
   });
 
     const firebaseConfig = {
