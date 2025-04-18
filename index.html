@@ -1658,20 +1658,29 @@
 
   function updateAssignmentStatus() {
     const statusEl = document.getElementById("slayer-assignment-status");
+    const hudAssignment = document.getElementById("hud-assignment");
 
     if (!statusEl) return;
 
     if (currentAssignment) {
-      statusEl.textContent = `📜 Assignment: ${currentAssignment.creature} (${currentAssignment.completed} / ${currentAssignment.quantity})`;
+      const text = `${currentAssignment.creature} (${currentAssignment.completed} / ${currentAssignment.quantity})`;
+      statusEl.textContent = `📜 Assignment: ${text}`;
+      if (hudAssignment) hudAssignment.textContent = text;
 
       if (currentAssignment.completed >= currentAssignment.quantity) {
         statusEl.classList.add("assignment-complete");
+        if (hudAssignment) hudAssignment.classList.add("assignment-complete");
       } else {
         statusEl.classList.remove("assignment-complete");
+        if (hudAssignment) hudAssignment.classList.remove("assignment-complete");
       }
+
     } else {
       statusEl.textContent = "📜 Assignment: None";
+      if (hudAssignment) hudAssignment.textContent = "None";
+
       statusEl.classList.remove("assignment-complete");
+      if (hudAssignment) hudAssignment.classList.remove("assignment-complete");
     }
   }
 
