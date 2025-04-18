@@ -1662,28 +1662,28 @@
 
     console.log("📜 Updating HUD Assignment:", currentAssignment);
 
-    if (!statusEl) return;
+    if (!statusEl || !hudAssignment) {
+      console.warn("⚠️ Assignment element(s) not found in DOM yet");
+      return;
+    }
 
     if (currentAssignment) {
       const text = `${currentAssignment.creature} (${currentAssignment.completed} / ${currentAssignment.quantity})`;
       statusEl.textContent = `📜 Assignment: ${text}`;
-      if (hudAssignment) hudAssignment.textContent = text;
-      console.log("✅ HUD Assignment Updated:", text);
+      hudAssignment.textContent = text;
 
       if (currentAssignment.completed >= currentAssignment.quantity) {
         statusEl.classList.add("assignment-complete");
-        if (hudAssignment) hudAssignment.classList.add("assignment-complete");
+        hudAssignment.classList.add("assignment-complete");
       } else {
         statusEl.classList.remove("assignment-complete");
-        if (hudAssignment) hudAssignment.classList.remove("assignment-complete");
+        hudAssignment.classList.remove("assignment-complete");
       }
-
     } else {
       statusEl.textContent = "📜 Assignment: None";
-      if (hudAssignment) hudAssignment.textContent = "None";
-
+      hudAssignment.textContent = "None";
       statusEl.classList.remove("assignment-complete");
-      if (hudAssignment) hudAssignment.classList.remove("assignment-complete");
+      hudAssignment.classList.remove("assignment-complete");
     }
   }
 
@@ -1949,8 +1949,9 @@
 	  updateForgeLocks();
     updateUsePotionButton();
     startRegenLoop();
-    updateAssignmentStatus();
+    
     renderCurrentAssignment();
+    updateAssignmentStatus();
 
     // Real-time resize tracking: Reponsive Spacer
     const hud = document.getElementById("bottom-hud");
