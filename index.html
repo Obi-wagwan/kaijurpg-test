@@ -1973,8 +1973,6 @@
 	  updateForgeLocks();
     updateUsePotionButton();
     startRegenLoop();
-    
-    setTimeout(() => safeAssignmentUpdate(), 200);
 
     // Real-time resize tracking: Reponsive Spacer
     const hud = document.getElementById("bottom-hud");
@@ -1986,6 +1984,8 @@
       });
       observer.observe(hud);
     }
+
+    safeAssignmentUpdate();
   });
 
     const firebaseConfig = {
