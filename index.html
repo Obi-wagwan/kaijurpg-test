@@ -1994,11 +1994,18 @@
       renderInventory();
 
       // ✅ Load last saved time
+      // const last = localStorage.getItem("KaijuRPG_LastSaved");
+      //   if (last) {
+      //     const readable = new Date(last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      //     document.getElementById("last-saved-local").textContent = readable;
+      //   }
+      
       const last = localStorage.getItem("KaijuRPG_LastSaved");
-        if (last) {
-          const readable = new Date(last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          document.getElementById("last-saved-local").textContent = readable;
-        }
+      if (last) {
+        const readable = new Date(last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const lastSavedLocalEl = document.getElementById("last-saved-local");
+        if (lastSavedLocalEl) lastSavedLocalEl.textContent = readable;
+      }
 
       console.log("Game loaded from version:", version);
     } catch (e) {
