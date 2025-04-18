@@ -555,6 +555,63 @@
   </div>
 </div>
 
+<!-- Bottom HUD -->
+<footer id="bottom-hud">
+  <div class="hud-2col">
+    <!-- LEFT COLUMN -->
+    <div class="hud-left">
+      <div class="hud-stats">
+        <div class="stat-block"><span class="stat-label">💪 Power:</span> <span id="power-level">0</span></div>
+        <div class="stat-block"><span class="stat-label">💰 Money:</span> $<span id="money">0.00</span></div>
+        <div class="stat-block"><span class="stat-label">🎯 Slayer:</span> <span id="slayer-points">0</span></div>
+      </div>          
+
+      <div class="bar-row">
+        <div class="bar-label">❤️ <strong>Health:</strong>&nbsp;<span id="hud-health">100</span>/<span id="hud-max-health">100</span></div>
+
+        <div class="bar-bar-and-count">
+          <div class="progress-container short">
+            <div class="progress-bar" id="hud-health-bar" style="background-color: #e53935;"></div>
+          </div>
+          <span id="regen-countdown" class="regen-text">(Next regen in 5s)</span>
+        </div>
+      </div>      
+
+      <div class="bar-row">
+        <div class="bar-label">⚡ <strong>Energy:</strong>&nbsp;<span id="hud-energy">100</span>/100</div>
+        <div class="progress-container short">
+          <div class="progress-bar" id="hud-energy-bar" style="background-color: #2196F3;"></div>
+        </div>
+      </div>      
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="hud-right">
+      <button class="gear-summary-btn" onclick="switchTab('gear')">
+        🛡️ Gear: <span id="gear-hud-helmet">None</span>, 
+        <span id="gear-hud-armor">None</span>, 
+        <span id="gear-hud-weapon">None</span>, 
+        <span id="gear-hud-accessory">None</span>
+      </button>
+
+      <div class="hud-buttons">
+        <button onclick="switchTab('hunt')">Hunt</button>
+        <button id="recharge-button" onclick="startRecharge()">Recharge Energy</button>
+      </div>
+
+      <div class="hud-bottom-right">
+        <button onclick="switchTab('slayer')">Slayer Guild</button>
+        <div class="hud-assignment">
+          <span class="stat-label">📜 Assignment:</span> <span id="hud-assignment">None</span>
+        </div>        
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Spacer for docked HUD, so scroll does not clip -->
+<div id="bottom-hud-spacer"></div>
+
 <script>
   let currentUserUID = null;
   let pendingCloudSnapshot = null;
@@ -2359,63 +2416,6 @@
     </div>
   </div>
 </div>
-
-<!-- Bottom HUD -->
-<footer id="bottom-hud">
-  <div class="hud-2col">
-    <!-- LEFT COLUMN -->
-    <div class="hud-left">
-      <div class="hud-stats">
-        <div class="stat-block"><span class="stat-label">💪 Power:</span> <span id="power-level">0</span></div>
-        <div class="stat-block"><span class="stat-label">💰 Money:</span> $<span id="money">0.00</span></div>
-        <div class="stat-block"><span class="stat-label">🎯 Slayer:</span> <span id="slayer-points">0</span></div>
-      </div>          
-
-      <div class="bar-row">
-        <div class="bar-label">❤️ <strong>Health:</strong>&nbsp;<span id="hud-health">100</span>/<span id="hud-max-health">100</span></div>
-
-        <div class="bar-bar-and-count">
-          <div class="progress-container short">
-            <div class="progress-bar" id="hud-health-bar" style="background-color: #e53935;"></div>
-          </div>
-          <span id="regen-countdown" class="regen-text">(Next regen in 5s)</span>
-        </div>
-      </div>      
-
-      <div class="bar-row">
-        <div class="bar-label">⚡ <strong>Energy:</strong>&nbsp;<span id="hud-energy">100</span>/100</div>
-        <div class="progress-container short">
-          <div class="progress-bar" id="hud-energy-bar" style="background-color: #2196F3;"></div>
-        </div>
-      </div>      
-    </div>
-
-    <!-- RIGHT COLUMN -->
-    <div class="hud-right">
-      <button class="gear-summary-btn" onclick="switchTab('gear')">
-        🛡️ Gear: <span id="gear-hud-helmet">None</span>, 
-        <span id="gear-hud-armor">None</span>, 
-        <span id="gear-hud-weapon">None</span>, 
-        <span id="gear-hud-accessory">None</span>
-      </button>
-
-      <div class="hud-buttons">
-        <button onclick="switchTab('hunt')">Hunt</button>
-        <button id="recharge-button" onclick="startRecharge()">Recharge Energy</button>
-      </div>
-
-      <div class="hud-bottom-right">
-        <button onclick="switchTab('slayer')">Slayer Guild</button>
-        <div class="hud-assignment">
-          <span class="stat-label">📜 Assignment:</span> <span id="hud-assignment">None</span>
-        </div>        
-      </div>
-    </div>
-  </div>
-</footer>
-
-<!-- Spacer for docked HUD, so scroll does not clip -->
-<div id="bottom-hud-spacer"></div>
 
 </body>
 </html>
