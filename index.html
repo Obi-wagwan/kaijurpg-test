@@ -1161,6 +1161,9 @@
 
     const powerEl = document.getElementById("power-level");
     if (powerEl) powerEl.textContent = calculatePowerLevel();
+
+    updateAssignmentStatus();
+
   }
 
   function updateForgeLocks() {
@@ -1698,8 +1701,8 @@
       <p style="color: gray;">Progress: 0 / ${qty}</p>
     `;
 
-    // updateAssignmentStatus();
-    // renderCurrentAssignment();
+    updateAssignmentStatus();
+    renderCurrentAssignment();
     safeAssignmentUpdate();
 
     document.getElementById("get-task-btn").disabled = true;
@@ -1711,8 +1714,8 @@
     slayerPoints -= 100;
     assignGuildTask(); // ✅ reuse the existing assignment logic
     updateStatus();
-    // updateAssignmentStatus();
-    // renderCurrentAssignment();
+    updateAssignmentStatus();
+    renderCurrentAssignment();
     safeAssignmentUpdate();
 
   }
@@ -1815,8 +1818,8 @@
     currentAssignment = null;
 
     // Update all the UI
-    // updateAssignmentStatus();
-    // renderCurrentAssignment();
+    updateAssignmentStatus();
+    renderCurrentAssignment();
     safeAssignmentUpdate();
 
     updateStatus();
@@ -1952,8 +1955,8 @@
       health = data.health ?? 100;
       money = data.money ?? 0;
       currentAssignment = data.currentAssignment || null;
-      //updateAssignmentStatus();
-      //renderCurrentAssignment();
+      updateAssignmentStatus();
+      renderCurrentAssignment();
 
 
       slayerPoints = data.slayerPoints ?? 0;
@@ -2143,8 +2146,8 @@
             health = data.health ?? health;
             money = data.money ?? money;
             currentAssignment = data.currentAssignment || null;
-            //updateAssignmentStatus();
-            //renderCurrentAssignment();
+            updateAssignmentStatus();
+            renderCurrentAssignment();
             safeAssignmentUpdate();
 
             slayerPoints = data.slayerPoints ?? slayerPoints;
