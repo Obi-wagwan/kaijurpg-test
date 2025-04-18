@@ -1383,18 +1383,6 @@
 
 		bonusEl.textContent = "";
 	  }
-
-    // ✅ Update Bottom HUD Gear Summary
-    const hudHelmet = document.getElementById("gear-hud-helmet");
-    const hudArmor = document.getElementById("gear-hud-armor");
-    const hudWeapon = document.getElementById("gear-hud-weapon");
-    const hudAccessory = document.getElementById("gear-hud-accessory");
-
-    if (hudHelmet) hudHelmet.textContent = equipment.helmet || "None";
-    if (hudArmor) hudArmor.textContent = equipment.armor || "None";
-    if (hudWeapon) hudWeapon.textContent = equipment.weapon || "None";
-    if (hudAccessory) hudAccessory.textContent = equipment.accessory || "None";
-
   }
   
   function unequipItem(slot) {
