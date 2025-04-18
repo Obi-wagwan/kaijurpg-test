@@ -1931,12 +1931,25 @@
 
   // Initial and on resize
   function adjustHudSpacer() {
-    const spacer = document.getElementById("bottom-hud-spacer");
-    const hud = document.getElementById("bottom-hud");
+      const spacer = document.getElementById("bottom-hud-spacer");
+      const hud = document.getElementById("bottom-hud");
 
-    if (!spacer || !hud) return;
-    spacer.style.height = `${hud.offsetHeight}px`;
+      if (!spacer || !hud) return;
+      spacer.style.height = `${hud.offsetHeight}px`;
+    }
+
+  function safeAssignmentUpdate(retries = 5) {
+    const el = document.getElementById("hud-assignment");
+    if (el) {
+      renderCurrentAssignment();
+      updateAssignmentStatus();
+    } else if (retries > 0) {
+      setTimeout(() => safeAssignmentUpdate(retries - 1), 200);
+    } else {
+      console.warn("⚠️ Failed to find assignment element after retries.");
+    }
   }
+
 
   window.addEventListener("DOMContentLoaded", () => {
     adjustHudSpacer();
@@ -1949,11 +1962,11 @@
 	  updateForgeLocks();
     updateUsePotionButton();
     startRegenLoop();
-    
-    setTimeout(() => {
-      renderCurrentAssignment();
-      updateAssignmentStatus();
-    }, 700);
+    safeAssignmentUpdate();
+
+    renderCurrentAssignment();
+    updateAssignmentStatus();
+
 
     // Real-time resize tracking: Reponsive Spacer
     const hud = document.getElementById("bottom-hud");
