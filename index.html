@@ -1889,8 +1889,8 @@
       health = data.health ?? 100;
       money = data.money ?? 0;
       currentAssignment = data.currentAssignment || null;
-      updateAssignmentStatus();
-      renderCurrentAssignment();
+      //updateAssignmentStatus();
+      //renderCurrentAssignment();
       slayerPoints = data.slayerPoints ?? 0;
 
       updateStatus();
@@ -1938,7 +1938,7 @@
       spacer.style.height = `${hud.offsetHeight}px`;
     }
 
-    
+
   function safeAssignmentUpdate(retries = 5) {
     const hud = document.getElementById("hud-assignment");
     const status = document.getElementById("slayer-assignment-status");
@@ -2078,8 +2078,8 @@
             health = data.health ?? health;
             money = data.money ?? money;
             currentAssignment = data.currentAssignment || null;
-            updateAssignmentStatus();
-            renderCurrentAssignment();
+            //updateAssignmentStatus();
+            //renderCurrentAssignment();
             slayerPoints = data.slayerPoints ?? slayerPoints;
 
             updateStatus();
