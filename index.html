@@ -1950,8 +1950,10 @@
     updateUsePotionButton();
     startRegenLoop();
     
-    renderCurrentAssignment();
-    updateAssignmentStatus();
+    setTimeout(() => {
+      renderCurrentAssignment();
+      updateAssignmentStatus();
+    }, 50);
 
     // Real-time resize tracking: Reponsive Spacer
     const hud = document.getElementById("bottom-hud");
