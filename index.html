@@ -1641,8 +1641,10 @@
       <p style="color: gray;">Progress: 0 / ${qty}</p>
     `;
 
-    updateAssignmentStatus();
-    renderCurrentAssignment();
+    // updateAssignmentStatus();
+    // renderCurrentAssignment();
+    safeAssignmentUpdate();
+
     document.getElementById("get-task-btn").disabled = true;
   }
 
@@ -1652,8 +1654,10 @@
     slayerPoints -= 100;
     assignGuildTask(); // ✅ reuse the existing assignment logic
     updateStatus();
-    updateAssignmentStatus();
-    renderCurrentAssignment();
+    // updateAssignmentStatus();
+    // renderCurrentAssignment();
+    safeAssignmentUpdate();
+
   }
 
   function updateAssignmentStatus() {
@@ -1754,8 +1758,10 @@
     currentAssignment = null;
 
     // Update all the UI
-    updateAssignmentStatus();
-    renderCurrentAssignment();
+    // updateAssignmentStatus();
+    // renderCurrentAssignment();
+    safeAssignmentUpdate();
+
     updateStatus();
     // ✅ Disable the button after task is turned in
     const completeBtn = document.getElementById("complete-task-btn");
@@ -1891,6 +1897,8 @@
       currentAssignment = data.currentAssignment || null;
       //updateAssignmentStatus();
       //renderCurrentAssignment();
+      safeAssignmentUpdate();
+
       slayerPoints = data.slayerPoints ?? 0;
 
       updateStatus();
@@ -2080,6 +2088,8 @@
             currentAssignment = data.currentAssignment || null;
             //updateAssignmentStatus();
             //renderCurrentAssignment();
+            safeAssignmentUpdate();
+
             slayerPoints = data.slayerPoints ?? slayerPoints;
 
             updateStatus();
