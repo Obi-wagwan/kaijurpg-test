@@ -1720,35 +1720,56 @@
 
   }
 
-  function updateAssignmentStatus() {
-    const statusEl = document.getElementById("slayer-assignment-status");
+  // function updateAssignmentStatus() {
+  //   const statusEl = document.getElementById("slayer-assignment-status");
+  //   const hudAssignment = document.getElementById("hud-assignment");
+
+  //   console.log("📜 Updating HUD Assignment:", currentAssignment);
+
+  //   if (!statusEl || !hudAssignment) {
+  //     console.warn("⚠️ Assignment element(s) not found in DOM yet");
+  //     return;
+  //   }
+
+  //   if (currentAssignment) {
+  //     const text = `${currentAssignment.creature} (${currentAssignment.completed} / ${currentAssignment.quantity})`;
+  //     statusEl.textContent = `📜 Assignment: ${text}`;
+  //     hudAssignment.textContent = text;
+
+  //     if (currentAssignment.completed >= currentAssignment.quantity) {
+  //       statusEl.classList.add("assignment-complete");
+  //       hudAssignment.classList.add("assignment-complete");
+  //     } else {
+  //       statusEl.classList.remove("assignment-complete");
+  //       hudAssignment.classList.remove("assignment-complete");
+  //     }
+  //   } else {
+  //     statusEl.textContent = "📜 Assignment: None";
+  //     hudAssignment.textContent = "None";
+  //     statusEl.classList.remove("assignment-complete");
+  //     hudAssignment.classList.remove("assignment-complete");
+  //   }
+  // }
+
+  function updateAssignmentStatus(retries = 10) {
     const hudAssignment = document.getElementById("hud-assignment");
+    if (!hudAssignment) {
+      if (retries > 0) {
+        console.warn("⚠️ Assignment element not found in DOM yet. Retrying...");
+        return setTimeout(() => updateAssignmentStatus(retries - 1), 100);
+      } else {
+        console.warn("⚠️ Failed to find assignment element after retries.");
+        return;
+      }
+    }
 
-    console.log("📜 Updating HUD Assignment:", currentAssignment);
-
-    if (!statusEl || !hudAssignment) {
-      console.warn("⚠️ Assignment element(s) not found in DOM yet");
+    if (!currentAssignment) {
+      hudAssignment.textContent = "None";
       return;
     }
 
-    if (currentAssignment) {
-      const text = `${currentAssignment.creature} (${currentAssignment.completed} / ${currentAssignment.quantity})`;
-      statusEl.textContent = `📜 Assignment: ${text}`;
-      hudAssignment.textContent = text;
-
-      if (currentAssignment.completed >= currentAssignment.quantity) {
-        statusEl.classList.add("assignment-complete");
-        hudAssignment.classList.add("assignment-complete");
-      } else {
-        statusEl.classList.remove("assignment-complete");
-        hudAssignment.classList.remove("assignment-complete");
-      }
-    } else {
-      statusEl.textContent = "📜 Assignment: None";
-      hudAssignment.textContent = "None";
-      statusEl.classList.remove("assignment-complete");
-      hudAssignment.classList.remove("assignment-complete");
-    }
+    const creatureName = currentAssignment.creature || "Unknown";
+    hudAssignment.textContent = `${creatureName} (${currentAssignment.completed} / ${currentAssignment.quantity})`;
   }
 
   function renderCurrentAssignment() {
