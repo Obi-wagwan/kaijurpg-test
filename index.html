@@ -29,6 +29,9 @@
     .assignment-complete {color: #d4af37 !important; /* ✨ GOLD */ font-weight: bold;animation: pulse 1s ease-in-out infinite alternate;}
     #complete-task-btn:enabled {background-color: #d4af37; font-weight: bold; color: white;}
 
+    /* CSS for stat labelling in Bottom HUD */
+    .stat-label {font-weight: bold;margin-right: 4px;}
+
     .bar-group {
       display: flex;
       align-items: center;
@@ -2271,20 +2274,20 @@
     <!-- LEFT COLUMN -->
     <div class="hud-left">
       <div class="hud-stats">
-        💪 <span id="power-level">0</span>
-        💰 $<span id="money">0.00</span>
-        🎯 <span id="slayer-points">0</span>
-      </div>
+        <span class="stat-label">💪 Power:</span> <span id="power-level">0</span>
+        <span class="stat-label">💰 Money:</span> $<span id="money">0.00</span>
+        <span class="stat-label">🎯 Slayer:</span> <span id="slayer-points">0</span>
+      </div>      
 
       <div class="bar-row">
-        ❤️ <span id="hud-health">100</span>/<span id="hud-max-health">100</span>
+        <strong>❤️ Health:</strong><span id="hud-health">100</span>/<span id="hud-max-health">100</span>
         <div class="progress-container short">
           <div class="progress-bar" id="hud-health-bar" style="background-color: #e53935;"></div>
         </div>
       </div>
 
       <div class="bar-row">
-        ⚡ <span id="hud-energy">100</span>/100
+        <strong>⚡ Energy:</strong><span id="hud-energy">100</span>/100
         <div class="progress-container short">
           <div class="progress-bar" id="hud-energy-bar" style="background-color: #2196F3;"></div>
         </div>
