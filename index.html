@@ -229,11 +229,26 @@
       body {
         padding-right: 0;
       }
+
+      .hud-2col {
+        flex-direction: column; /* ✅ stack vertically */
+        gap: 12px;
+      }
     }
 
     /* recharge button */
     .recharge-wrapper {
       white-space: nowrap;
+    }
+
+    /* pulsing glow when recharging */
+    .recharging {
+      animation: pulseGlow 1s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 4px rgba(33, 150, 243, 0.4); }
+      100% { box-shadow: 0 0 12px rgba(33, 150, 243, 0.9); }
     }
 
   </style>
@@ -1079,6 +1094,7 @@
 
     isRecharging = true;
     document.getElementById("recharge-button").disabled = true;
+    document.getElementById("recharge-button").classList.add("recharging");
     document.getElementById("stop-button").disabled = true;
     document.getElementById("evac-overlay").style.display = "block";
     document.body.classList.add("evac-disabled");
@@ -1102,6 +1118,7 @@
         document.getElementById("progress-bar").style.width = "0%";
         document.getElementById("current-action").textContent = "Idle";
         document.getElementById("recharge-button").disabled = false;
+        document.getElementById("recharge-button").classList.remove("recharging");
         document.getElementById("stop-button").disabled = false;
         document.getElementById("evac-overlay").style.display = "none";
         document.body.classList.remove("evac-disabled");
@@ -1852,17 +1869,6 @@
 
     if (!spacer || !hud) return;
     spacer.style.height = `${hud.offsetHeight}px`;
-  }
-
-  // Optional: Real-time resize tracking
-  const hud = document.getElementById("bottom-hud");
-  const spacer = document.getElementById("bottom-hud-spacer");
-
-  if (hud && spacer && typeof ResizeObserver !== "undefined") {
-    const observer = new ResizeObserver(() => {
-      spacer.style.height = `${hud.offsetHeight}px`;
-    });
-    observer.observe(hud);
   }
 
   window.addEventListener("DOMContentLoaded", () => {
