@@ -1938,11 +1938,14 @@
       spacer.style.height = `${hud.offsetHeight}px`;
     }
 
+    
   function safeAssignmentUpdate(retries = 5) {
-    const el = document.getElementById("hud-assignment");
-    if (el) {
-      renderCurrentAssignment();
+    const hud = document.getElementById("hud-assignment");
+    const status = document.getElementById("slayer-assignment-status");
+
+    if (hud && status) {
       updateAssignmentStatus();
+      renderCurrentAssignment();
     } else if (retries > 0) {
       setTimeout(() => safeAssignmentUpdate(retries - 1), 200);
     } else {
@@ -1962,7 +1965,8 @@
 	  updateForgeLocks();
     updateUsePotionButton();
     startRegenLoop();
-    safeAssignmentUpdate();
+    
+    setTimeout(() => safeAssignmentUpdate(), 200);
 
     // Real-time resize tracking: Reponsive Spacer
     const hud = document.getElementById("bottom-hud");
