@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <title>testbuild-KaijuRPG v0.1.3</title>
   <style>
-    body { font-family: sans-serif; background: #f4f4f4; padding-top: 120px; padding-bottom: 160px;}
+    body { font-family: sans-serif; background: #121212; color: #f0f0f0; padding-top: 120px; padding-bottom: 160px;}
     .tab-buttons button {
       margin-right: 10px;
       padding: 10px 20px;
       border: none;
-      background: #ccc;
+      background: #00b7ff;
       border-radius: 5px;
       cursor: pointer;
     }
@@ -17,7 +17,7 @@
     .tab-buttons button.active { background: #4caf50; color: white; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    .panel { background: white; padding: 15px; margin-top: 10px; border-radius: 8px; }
+    .panel { background: #1e1e1e; padding: 15px; margin-top: 10px; border-radius: 8px; }
     .progress-container { position: relative; height: 20px; background: #ddd; border-radius: 10px; overflow: hidden; margin-top: 10px; }
     .progress-bar { height: 100%; width: 0%; background: #4caf50; }
     .evac-disabled {pointer-events: none; transition: opacity 0.2s ease;}
@@ -96,12 +96,12 @@
       left: 0;
       width: 100%;
       max-width: 100%;
-      background: #fff;
+      background: #121212;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 10px 20px;
-      border-bottom: 2px solid #ccc;
+      border-bottom: 2px solid #333;
       z-index: 9999;
       flex-wrap: wrap; /* ✅ allow wrapping if needed */
       gap: 10px;
@@ -112,7 +112,7 @@
       font-size: 1.4em;
       font-weight: bold;
       text-align: center;
-      color: #333;
+      color: #eee;
       white-space: nowrap;
     }
 
@@ -126,8 +126,9 @@
     #top-nav-bar button {
       padding: 6px 12px;
       font-weight: bold;
-      background: #eee;
-      border: 1px solid #ccc;
+      background: #333;
+      color: #f4f4f4;
+      border: 1px solid #f4f4f4;
       border-radius: 6px;
       cursor: pointer;
       flex: 0 0 auto;
@@ -138,9 +139,9 @@
       top: 50px; /* just under top nav */
       left: 0;
       width: 100%;
-      background: #fff;
+      background: #121212;
       padding: 8px 16px;
-      border-bottom: 2px solid #ccc;
+      border-bottom: 2px solid #333;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       z-index: 9998;
     }
@@ -173,9 +174,9 @@
       right: 0;
       width: 50%;
       max-width: 100%;
-      background: white;
-      border-top: 2px solid #ccc;
-      border-left: 2px solid #ccc;
+      background: #121212;
+      border-top: 2px solid #333;
+      border-left: 2px solid #333;
       padding: 10px 20px;
       font-size: 0.85em;
       z-index: 9999;
@@ -231,8 +232,9 @@
     }
 
     .gear-summary-btn {
-      background: #f8f8f8;
-      border: 1px solid #ccc;
+      background: #333;
+      color: #f4f4f4;
+      border: 1px solid #f4f4f4;
       padding: 4px 8px;
       font-size: 0.85em;
       border-radius: 6px;
@@ -251,8 +253,9 @@
     .hud-bottom-right button {
       padding: 6px 12px;
       font-weight: bold;
-      border: 1px solid #ccc;
-      background: #f0f0f0;
+      border: 1px solid #f4f4f4;
+      background: #333;
+      color: #f4f4f4;
       border-radius: 6px;
       cursor: pointer;
     }
@@ -1349,7 +1352,7 @@
       } else {
         nameEl.textContent = "None";
         nameEl.style.cursor = "default";
-        nameEl.style.color = "#000";
+        nameEl.style.color = "#f4f4f4";
         nameEl.title = "";
         nameEl.onclick = null;
 
@@ -1372,9 +1375,9 @@
 		bonusEl.textContent = ` (+${potionEffects[potion.name] || "Effect"})`;
 		bonusEl.style.color = "#27ae60";
 	  } else {
-		nameEl.textContent = "None";
+		nameEl.textContent = "No Potion Equipped";
 		nameEl.style.cursor = "default";
-		nameEl.style.color = "#000";
+		nameEl.style.color = "#f4f4f4";
 		nameEl.title = "";
 		nameEl.onclick = null;
 
