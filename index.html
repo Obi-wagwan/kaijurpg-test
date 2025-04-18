@@ -76,6 +76,20 @@
       min-width: 130px;
     }
 
+    .bar-bar-and-count {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-grow: 1;
+      min-width: 150px;
+    }
+
+    .regen-text {
+      font-size: 0.8em;
+      color: #27ae60;
+      white-space: nowrap;
+    }
+
     #top-nav-bar {
       position: fixed;
       top: 0;
@@ -2311,8 +2325,12 @@
 
       <div class="bar-row">
         <div class="bar-label">❤️ <strong>Health:</strong>&nbsp;<span id="hud-health">100</span>/<span id="hud-max-health">100</span></div>
-        <div class="progress-container short">
-          <div class="progress-bar" id="hud-health-bar" style="background-color: #e53935;"></div>
+
+        <div class="bar-bar-and-count">
+          <div class="progress-container short">
+            <div class="progress-bar" id="hud-health-bar" style="background-color: #e53935;"></div>
+          </div>
+          <span id="regen-countdown" class="regen-text">(Next regen in 5s)</span>
         </div>
       </div>      
 
