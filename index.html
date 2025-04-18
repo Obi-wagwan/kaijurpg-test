@@ -1666,6 +1666,7 @@
       const text = `${currentAssignment.creature} (${currentAssignment.completed} / ${currentAssignment.quantity})`;
       statusEl.textContent = `📜 Assignment: ${text}`;
       if (hudAssignment) hudAssignment.textContent = text;
+      console.log("✅ HUD Assignment Updated:", text);
 
       if (currentAssignment.completed >= currentAssignment.quantity) {
         statusEl.classList.add("assignment-complete");
