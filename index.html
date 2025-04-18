@@ -119,11 +119,6 @@
       background: #4caf50;
     }
 
-    /* Spacer CSS for bottom HUD */
-    #bottom-hud-spacer {
-      height: 127px; /*match HUD height*/
-    }
-
     /* Bottom HUD Styling */
     #bottom-hud {
       position: fixed;
@@ -1850,7 +1845,28 @@
 
   }
 
+  // Initial and on resize
+  function adjustHudSpacer() {
+    const spacer = document.getElementById("bottom-hud-spacer");
+    const hud = document.getElementById("bottom-hud");
+
+    if (!spacer || !hud) return;
+    spacer.style.height = `${hud.offsetHeight}px`;
+  }
+
+  // Optional: Real-time resize tracking
+  const hud = document.getElementById("bottom-hud");
+  const spacer = document.getElementById("bottom-hud-spacer");
+
+  if (hud && spacer && typeof ResizeObserver !== "undefined") {
+    const observer = new ResizeObserver(() => {
+      spacer.style.height = `${hud.offsetHeight}px`;
+    });
+    observer.observe(hud);
+  }
+
   window.addEventListener("DOMContentLoaded", () => {
+    adjustHudSpacer();
     loadGame();
 	  updateStatus();
     updateEquipmentUI();
@@ -1860,8 +1876,18 @@
 	  updateForgeLocks();
     updateUsePotionButton();
     startRegenLoop();
-  });
 
+    // Real-time resize tracking: Reponsive Spacer
+    const hud = document.getElementById("bottom-hud");
+    const spacer = document.getElementById("bottom-hud-spacer");
+
+    if (hud && spacer && typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(() => {
+        spacer.style.height = `${hud.offsetHeight}px`;
+      });
+      observer.observe(hud);
+    }
+  });
 
     const firebaseConfig = {
         apiKey: "AIzaSyAEDUd-w52zCwwh7KZ2kx-ubIRX25jFMZs",
