@@ -1660,6 +1660,8 @@
     const statusEl = document.getElementById("slayer-assignment-status");
     const hudAssignment = document.getElementById("hud-assignment");
 
+    console.log("📜 Updating HUD Assignment:", currentAssignment);
+
     if (!statusEl) return;
 
     if (currentAssignment) {
@@ -1895,6 +1897,8 @@
       updateEquipmentUI();
       updateUsePotionButton();
       updateForgeLocks();
+
+      console.log("📦 Loaded currentAssignment:", data.currentAssignment);
 
       for (let skill in skills) updateSkillUI(skill);
 
