@@ -1949,6 +1949,8 @@
 	  updateForgeLocks();
     updateUsePotionButton();
     startRegenLoop();
+    updateAssignmentStatus();
+    renderCurrentAssignment();
 
     // Real-time resize tracking: Reponsive Spacer
     const hud = document.getElementById("bottom-hud");
