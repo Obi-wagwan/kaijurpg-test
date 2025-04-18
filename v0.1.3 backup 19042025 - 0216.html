@@ -2045,18 +2045,15 @@
 
   window.addEventListener("DOMContentLoaded", () => {
     adjustHudSpacer();
-
-    setTimeout(() => {
-      loadGame();
-      updateStatus();
-      updateEquipmentUI();
-      updateSkillUI("hunter");
-      setupAccordion("hunt");
-      setupAccordion("forging");
-      updateForgeLocks();
-      updateUsePotionButton();
-      startRegenLoop();
-    }, 100); 
+    loadGame();
+	  updateStatus();
+    updateEquipmentUI();
+    updateSkillUI("hunter");
+	  setupAccordion("hunt");
+	  setupAccordion("forging");
+	  updateForgeLocks();
+    updateUsePotionButton();
+    startRegenLoop();
 
     // Real-time resize tracking: Reponsive Spacer
     const hud = document.getElementById("bottom-hud");
