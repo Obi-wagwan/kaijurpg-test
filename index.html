@@ -32,6 +32,33 @@
     /* CSS for stat labelling in Bottom HUD */
     .stat-label {font-weight: bold;margin-right: 4px;}
 
+    /* Vertical Separators for stats - start */
+    .hud-stats {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .stat-block {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+      padding-right: 12px;
+      margin-right: 12px;
+    }
+
+    .stat-block:not(:last-child)::after {
+      content: "|";
+      position: absolute;
+      right: 0;
+      top: 0;
+      color: #999;
+      font-weight: normal;
+    }
+    /* Vertical Separators for stats - end */
+
     .bar-group {
       display: flex;
       align-items: center;
@@ -2274,10 +2301,10 @@
     <!-- LEFT COLUMN -->
     <div class="hud-left">
       <div class="hud-stats">
-        <span class="stat-label">💪 Power:</span> <span id="power-level">0</span>
-        <span class="stat-label">💰 Money:</span> $<span id="money">0.00</span>
-        <span class="stat-label">🎯 Slayer:</span> <span id="slayer-points">0</span>
-      </div>      
+        <div class="stat-block"><span class="stat-label">💪 Power:</span> <span id="power-level">0</span></div>
+        <div class="stat-block"><span class="stat-label">💰 Money:</span> $<span id="money">0.00</span></div>
+        <div class="stat-block"><span class="stat-label">🎯 Slayer:</span> <span id="slayer-points">0</span></div>
+      </div>          
 
       <div class="bar-row">
         <strong>❤️ Health:</strong><span id="hud-health">100</span>/<span id="hud-max-health">100</span>
