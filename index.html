@@ -1761,6 +1761,12 @@
     let regenTimer = 6;
     let wasRegenActive = false;
 
+    // ✅ Immediately clear countdown if full health at start
+    const countdownEl = document.getElementById("regen-countdown");
+    if (countdownEl && health >= maxHealth) {
+      countdownEl.textContent = "";
+    }
+
     setInterval(() => {
       const canRegen = !currentMonster && !isEvacuating && health < maxHealth;
 
