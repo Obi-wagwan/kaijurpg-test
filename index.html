@@ -2734,6 +2734,8 @@ setInterval(positionActionPanel, 500); // optional safety net
             }
 
             const data = snapshot.val();
+            console.log("📜 Cloud Save Assignment:", data.currentAssignment);
+
             if (data.savedAt) {
               const time = new Date(data.savedAt);
               const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
