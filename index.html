@@ -592,6 +592,10 @@
     <p id="flavor-text" style="font-style: italic; color: #aaa;">
       "The wilds stir once more. What will you do next?"
     </p>
+    <button onclick="signInWithGoogle()" id="dashboard-google-btn" style="margin-top: 10px;">
+      🔐 Sign in with Google
+    </button>
+    <p style="margin-top: 4px;">Signed in as: <span id="dashboard-user-name" style="font-weight: bold;">Not signed in</span></p>
   </div>
   
   <div class="panel">
@@ -2482,13 +2486,6 @@
       for (let skill in skills) updateSkillUI(skill);
 
       renderInventory();
-
-      // ✅ Load last saved time
-      // const last = localStorage.getItem("KaijuRPG_LastSaved");
-      //   if (last) {
-      //     const readable = new Date(last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      //     document.getElementById("last-saved-local").textContent = readable;
-      //   }
       
       const last = localStorage.getItem("KaijuRPG_LastSaved");
       if (last) {
@@ -2711,6 +2708,11 @@ setInterval(positionActionPanel, 500); // optional safety net
           currentUserUID = user.uid;
 
           document.getElementById("user-name").textContent = user.displayName;
+          const dashboardName = document.getElementById("dashboard-user-name");
+          if (dashboardName) {
+            dashboardName.textContent = user.displayName;
+          }
+
           document.getElementById("cloud-save-btn").disabled = false;
 
           // ✅ Compare timestamps and load the most recent save
