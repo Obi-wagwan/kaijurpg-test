@@ -16,6 +16,7 @@
       cursor: pointer;
     }
 	  .status-row {margin-bottom: 8px;}
+    .tab-buttons button.active { background: #4caf50; color: white; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .panel { background: #1e1e1e; padding: 15px; margin-top: 10px; border-radius: 8px; }
@@ -32,13 +33,7 @@
     #recharge-button:disabled {opacity: 0.5; cursor: not-allowed;}
     #mobile-recharge-btn:disabled {opacity: 0.6; cursor: not-allowed;}
 
-    .tab-buttons button.active,
-    #top-nav-bar button.active,
-    #mobile-bottom-panel button.active {
-      background-color: #4caf50;
-      color: white;
-      border-color: #388e3c;
-    }
+
 
     /* CSS for stat labelling in Bottom HUD */
     .stat-label {font-weight: bold;margin-right: 4px;}
@@ -588,33 +583,9 @@
 
 <div class="tab-content active" id="game-tab">
   <div class="panel">
-    <h2>🏠 Welcome, Hunter</h2>
-    <p id="flavor-text" style="font-style: italic; color: #aaa;">
-      "The wilds stir once more. What will you do next?"
-    </p>
+    <h4>Inventory</h4>
+    <div class="inventory-list">Empty</div>
   </div>
-  
-  <div class="panel">
-    <h3>📊 Your Current Status</h3>
-    <ul style="line-height: 1.6;">
-      <li>💪 Power Level: <span id="dashboard-power">0</span></li>
-      <li>🛡️ Equipped Gear:
-        <span id="dashboard-gear">None</span>
-      </li>
-      <li>⚡ Energy: <span id="dashboard-energy">0</span>/100</li>
-      <li>❤️ Health: <span id="dashboard-health">0</span>/<span id="dashboard-max-health">100</span></li>
-      <li>🎯 Slayer Assignment: <span id="dashboard-assignment">None</span></li>
-    </ul>
-  </div>
-  
-  <div class="panel">
-    <h3>💾 Save Summary</h3>
-    <ul style="line-height: 1.6;">
-      <li>🗂️ Local Save: <span id="dashboard-last-local">Never</span></li>
-      <li>☁️ Cloud Save: <span id="dashboard-last-cloud">Never</span></li>
-    </ul>
-  </div>
-  
 
 </div>
 
@@ -921,13 +892,13 @@
       </button>
 
       <div class="hud-buttons">
-        <button id="hunt-tab" onclick="switchTab('hunt')">⚔️&nbsp;Hunt</button>
+        <button onclick="switchTab('hunt')">⚔️&nbsp;Hunt</button>
         <button id="recharge-button" onclick="startRecharge()">⚡&nbsp;Recharge</button>
         <button id="stop-button" onclick="stopAction()">🛑&nbsp;Stop Action</button>
       </div>
 
       <div class="hud-bottom-right">
-        <button id="slayer-tab" onclick="switchTab('slayer')">🏛️&nbsp;Slayer Guild</button>
+        <button onclick="switchTab('slayer')">🏛️&nbsp;Slayer Guild</button>
         <div class="hud-assignment">
           <span class="stat-label">📜 Assignment:</span> <span id="hud-assignment">None</span>
         </div>        
@@ -1044,67 +1015,51 @@
   };
 
   function switchTab(tab) {
-    // Remove active class from all tab-switching buttons across UI
-    document.querySelectorAll('#top-nav-bar button, #bottom-hud button, #mobile-bottom-panel button').forEach(btn => {
-      btn.classList.remove('active');
-    });
-
-    // Hide all tab content
+    document.querySelectorAll('.tab-buttons button').forEach(btn => {btn.classList.remove('active');});
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-    // Show the selected tab content
-    const targetTab = document.getElementById(`${tab}-tab`);
-    if (targetTab) targetTab.classList.add('active');
+    // Add active class to the matching content
+    document.getElementById(`${tab}-tab`).classList.add('active');
 
-    // Re-apply active class to all matching tab buttons
-    document.querySelectorAll('#top-nav-bar button, #bottom-hud button, #mobile-bottom-panel button').forEach(btn => {
-      const onclick = btn.getAttribute('onclick');
-      if (onclick === `switchTab('${tab}')`) {
+    // Add active class to button manually
+    const allButtons = document.querySelectorAll('.tab-buttons button');
+    allButtons.forEach(btn => {
+      if (btn.getAttribute('onclick') === `switchTab('${tab}')`) {
         btn.classList.add('active');
       }
     });
-
-    if (tab === 'game') updateHunterDashboard();
+	
+	updateSpecialTabStyles(tab);
   }
+  
+  function updateSpecialTabStyles(activeTab) {
+    const huntBtn = document.getElementById("tab-hunt");
+    const guildBtn = document.getElementById("tab-slayer");
 
-  function updateHunterDashboard() {
-  document.getElementById("dashboard-power").textContent = calculatePowerLevel();
+    if (huntBtn) {
+      if (activeTab === "hunt") {
+        huntBtn.style.backgroundColor = "#c8e6c9";  // deeper green
+        huntBtn.style.borderColor = "#2e7d32";
+        huntBtn.style.color = "#1b5e20";
+      } else {
+        huntBtn.style.backgroundColor = "#e0f7e9";
+        huntBtn.style.borderColor = "#4caf50";
+        huntBtn.style.color = "#2e7d32";
+      }
+    }
 
-  const gearText = [
-    equipment.helmet || "None",
-    equipment.armor || "None",
-    equipment.weapon || "None"
-  ].join(", ");
-  document.getElementById("dashboard-gear").textContent = gearText;
-
-  document.getElementById("dashboard-energy").textContent = energy;
-  document.getElementById("dashboard-health").textContent = health;
-  document.getElementById("dashboard-max-health").textContent = maxHealth;
-
-  // Slayer assignment
-  const assignText = currentAssignment
-    ? `${currentAssignment.creature} (${currentAssignment.completed} / ${currentAssignment.quantity})`
-    : "None";
-  document.getElementById("dashboard-assignment").textContent = assignText;
-
-  // Local save timestamp
-  const localTime = localStorage.getItem("KaijuRPG_LastSaved");
-  if (localTime) {
-    const readable = new Date(localTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const localEl = document.getElementById("dashboard-last-local");
-    if (localEl) localEl.textContent = readable;
+    if (guildBtn) {
+      if (activeTab === "slayer") {
+        guildBtn.style.backgroundColor = "#ffe0b2";  // deeper orange
+        guildBtn.style.borderColor = "#e65100";
+        guildBtn.style.color = "#bf360c";
+      } else {
+        guildBtn.style.backgroundColor = "#fff3e0";
+        guildBtn.style.borderColor = "#ff9800";
+        guildBtn.style.color = "#e65100";
+      }
+    }
   }
-
-  // Cloud save timestamp
-  const cloudTime = localStorage.getItem("KaijuRPG_LastCloudSaved");
-  if (cloudTime) {
-    const readable = cloudTime; // already formatted when saved
-    const cloudEl = document.getElementById("dashboard-last-cloud");
-    if (cloudEl) cloudEl.textContent = readable;
-  }
-
-}
-
 
   function calculatePowerLevel(equip = equipment) {
     let power = 0;
@@ -2564,7 +2519,6 @@ setInterval(positionActionPanel, 500); // optional safety net
       updateForgeLocks();
       updateUsePotionButton();
       startRegenLoop();
-      switchTab('game');
     }, 500); 
 
     // Real-time resize tracking: Reponsive Spacer

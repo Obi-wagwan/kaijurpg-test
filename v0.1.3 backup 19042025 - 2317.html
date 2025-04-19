@@ -16,6 +16,7 @@
       cursor: pointer;
     }
 	  .status-row {margin-bottom: 8px;}
+    .tab-buttons button.active { background: #4caf50; color: white; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .panel { background: #1e1e1e; padding: 15px; margin-top: 10px; border-radius: 8px; }
@@ -32,13 +33,7 @@
     #recharge-button:disabled {opacity: 0.5; cursor: not-allowed;}
     #mobile-recharge-btn:disabled {opacity: 0.6; cursor: not-allowed;}
 
-    .tab-buttons button.active,
-    #top-nav-bar button.active,
-    #mobile-bottom-panel button.active {
-      background-color: #4caf50;
-      color: white;
-      border-color: #388e3c;
-    }
+
 
     /* CSS for stat labelling in Bottom HUD */
     .stat-label {font-weight: bold;margin-right: 4px;}
@@ -356,21 +351,20 @@
     }
 
     .hud-mobile-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: center; /* ✅ centers content vertically */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
       margin-bottom: 6px;
     }
 
     .hud-mobile-label {
-      display: flex;
-      align-items: center;
-      line-height: 1;
+      flex: 1;
       font-weight: bold;
+      text-align: left;
       white-space: nowrap;
-      height: 100%;             /* ✅ Match grid row height */
-      padding: 2px 0;           /* ✅ Optional spacing tweak */
+      align-items: center;
+      line-height: 1.2;
     }
 
     .hud-stat-block {
@@ -382,55 +376,10 @@
     }
 
     .hud-mobile-bar {
+      flex: 1;
       display: flex;
-      align-items: center;      /* ✅ Vertically center */
-      justify-content: flex-start;
-      height: 100%;
-      padding-bottom: 12px;
-    }
-
-    .regen-text-mobile {
-      font-size: 0.75em;
-      color: #27ae60;
-      white-space: nowrap;
-    }
-
-    .mobile-current-action {
-      text-align: right;
-      font-size: 0.8em;
-      color: #ccc;
-      margin-bottom: 4px;
-      white-space: nowrap;
-    }
-
-    #mobile-current-action-label {
-      font-weight: bold;
-      color: #f4f4f4;
-    }
-
-    .hud-mobile-top-row {
-      display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
-      flex-wrap: nowrap; /* 🔒 prevents wrapping */
-      padding: 2px 4px;
-      font-size: 0.85em;
-      gap: 8px;
-    }
-
-    .hud-mobile-stats {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      white-space: nowrap;
-    }
-
-    .hud-mobile-action-label {
-      white-space: nowrap;
-      font-size: 0.8em;
-      color: #ccc;
-      flex-shrink: 0;
     }
 
     /* Only show mobile layout on narrow screens */
@@ -442,28 +391,6 @@
       #action-panel,
       #hunt-log-container {
         display: none !important;
-      }
-
-      #mobile-log-container {
-        position: fixed;
-        bottom: 150px; /* adjust depending on HUD height */
-        left: 0;
-        width: 100%;
-        height: 40px;
-        max-height: 40px;
-        overflow-y: auto;
-        background: #1e1e1e;
-        color: #ccc;
-        font-size: 0.75em;
-        padding: 4px 4px;
-        border-top: 1px solid #444;
-        border-bottom: 1px solid #444;
-        z-index: 9998;
-      }
-
-      .mobile-log-box {
-        font-family: monospace;
-        white-space: pre-line;
       }
     }
     /* mobile HUD CSS end */
@@ -588,33 +515,9 @@
 
 <div class="tab-content active" id="game-tab">
   <div class="panel">
-    <h2>🏠 Welcome, Hunter</h2>
-    <p id="flavor-text" style="font-style: italic; color: #aaa;">
-      "The wilds stir once more. What will you do next?"
-    </p>
+    <h4>Inventory</h4>
+    <div class="inventory-list">Empty</div>
   </div>
-  
-  <div class="panel">
-    <h3>📊 Your Current Status</h3>
-    <ul style="line-height: 1.6;">
-      <li>💪 Power Level: <span id="dashboard-power">0</span></li>
-      <li>🛡️ Equipped Gear:
-        <span id="dashboard-gear">None</span>
-      </li>
-      <li>⚡ Energy: <span id="dashboard-energy">0</span>/100</li>
-      <li>❤️ Health: <span id="dashboard-health">0</span>/<span id="dashboard-max-health">100</span></li>
-      <li>🎯 Slayer Assignment: <span id="dashboard-assignment">None</span></li>
-    </ul>
-  </div>
-  
-  <div class="panel">
-    <h3>💾 Save Summary</h3>
-    <ul style="line-height: 1.6;">
-      <li>🗂️ Local Save: <span id="dashboard-last-local">Never</span></li>
-      <li>☁️ Cloud Save: <span id="dashboard-last-cloud">Never</span></li>
-    </ul>
-  </div>
-  
 
 </div>
 
@@ -830,29 +733,21 @@
   </div>
 </div>
 
-<!-- Mobile Activity Log -->
-<div id="mobile-log-container">
-  <div id="mobile-hunt-log" class="mobile-log-box"></div>
-</div>
-
 <!-- Mobile bottom HUD -->
 <div id="mobile-bottom-panel">
-  <div class="hud-mobile-top-row">
-    <div class="hud-mobile-stats">
-      <span>💪 : <span id="mobile-power-level">0</span></span>
-      <span>💰 : $<span id="mobile-money">0.00</span></span>
-      <span>🎯 : <span id="mobile-slayer-points">0</span></span>
-    </div>
-    <div class="hud-mobile-action-label">
-      ⚙️ <span id="mobile-current-action-label">Idle</span>
+  <div class="mobile-bar-row">
+    <div class="hud-stat-block">
+      <span><span class="stat-label">💪 :</span> <span id="mobile-power-level">0</span></span>
+      <span>|</span>
+      <span><span class="stat-label">💰 :</span> $<span id="mobile-money">0.00</span></span>
+      <span>|</span>
+      <span><span class="stat-label">🎯 :</span> <span id="mobile-slayer-points">0</span></span>
     </div>
   </div>
-  
 
   <div class="hud-mobile-row">
     <div class="hud-mobile-label">
       ❤️ Health: <span id="mobile-hud-health">100</span>/<span id="mobile-hud-max-health">100</span>
-      <span id="mobile-regen-countdown" class="regen-text-mobile" style="margin-left: 6px;"></span>
     </div>
     <div class="hud-mobile-bar">
       <div class="progress-container short">
@@ -921,13 +816,13 @@
       </button>
 
       <div class="hud-buttons">
-        <button id="hunt-tab" onclick="switchTab('hunt')">⚔️&nbsp;Hunt</button>
+        <button onclick="switchTab('hunt')">⚔️&nbsp;Hunt</button>
         <button id="recharge-button" onclick="startRecharge()">⚡&nbsp;Recharge</button>
         <button id="stop-button" onclick="stopAction()">🛑&nbsp;Stop Action</button>
       </div>
 
       <div class="hud-bottom-right">
-        <button id="slayer-tab" onclick="switchTab('slayer')">🏛️&nbsp;Slayer Guild</button>
+        <button onclick="switchTab('slayer')">🏛️&nbsp;Slayer Guild</button>
         <div class="hud-assignment">
           <span class="stat-label">📜 Assignment:</span> <span id="hud-assignment">None</span>
         </div>        
@@ -1044,67 +939,51 @@
   };
 
   function switchTab(tab) {
-    // Remove active class from all tab-switching buttons across UI
-    document.querySelectorAll('#top-nav-bar button, #bottom-hud button, #mobile-bottom-panel button').forEach(btn => {
-      btn.classList.remove('active');
-    });
-
-    // Hide all tab content
+    document.querySelectorAll('.tab-buttons button').forEach(btn => {btn.classList.remove('active');});
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-    // Show the selected tab content
-    const targetTab = document.getElementById(`${tab}-tab`);
-    if (targetTab) targetTab.classList.add('active');
+    // Add active class to the matching content
+    document.getElementById(`${tab}-tab`).classList.add('active');
 
-    // Re-apply active class to all matching tab buttons
-    document.querySelectorAll('#top-nav-bar button, #bottom-hud button, #mobile-bottom-panel button').forEach(btn => {
-      const onclick = btn.getAttribute('onclick');
-      if (onclick === `switchTab('${tab}')`) {
+    // Add active class to button manually
+    const allButtons = document.querySelectorAll('.tab-buttons button');
+    allButtons.forEach(btn => {
+      if (btn.getAttribute('onclick') === `switchTab('${tab}')`) {
         btn.classList.add('active');
       }
     });
-
-    if (tab === 'game') updateHunterDashboard();
+	
+	updateSpecialTabStyles(tab);
   }
+  
+  function updateSpecialTabStyles(activeTab) {
+    const huntBtn = document.getElementById("tab-hunt");
+    const guildBtn = document.getElementById("tab-slayer");
 
-  function updateHunterDashboard() {
-  document.getElementById("dashboard-power").textContent = calculatePowerLevel();
+    if (huntBtn) {
+      if (activeTab === "hunt") {
+        huntBtn.style.backgroundColor = "#c8e6c9";  // deeper green
+        huntBtn.style.borderColor = "#2e7d32";
+        huntBtn.style.color = "#1b5e20";
+      } else {
+        huntBtn.style.backgroundColor = "#e0f7e9";
+        huntBtn.style.borderColor = "#4caf50";
+        huntBtn.style.color = "#2e7d32";
+      }
+    }
 
-  const gearText = [
-    equipment.helmet || "None",
-    equipment.armor || "None",
-    equipment.weapon || "None"
-  ].join(", ");
-  document.getElementById("dashboard-gear").textContent = gearText;
-
-  document.getElementById("dashboard-energy").textContent = energy;
-  document.getElementById("dashboard-health").textContent = health;
-  document.getElementById("dashboard-max-health").textContent = maxHealth;
-
-  // Slayer assignment
-  const assignText = currentAssignment
-    ? `${currentAssignment.creature} (${currentAssignment.completed} / ${currentAssignment.quantity})`
-    : "None";
-  document.getElementById("dashboard-assignment").textContent = assignText;
-
-  // Local save timestamp
-  const localTime = localStorage.getItem("KaijuRPG_LastSaved");
-  if (localTime) {
-    const readable = new Date(localTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const localEl = document.getElementById("dashboard-last-local");
-    if (localEl) localEl.textContent = readable;
+    if (guildBtn) {
+      if (activeTab === "slayer") {
+        guildBtn.style.backgroundColor = "#ffe0b2";  // deeper orange
+        guildBtn.style.borderColor = "#e65100";
+        guildBtn.style.color = "#bf360c";
+      } else {
+        guildBtn.style.backgroundColor = "#fff3e0";
+        guildBtn.style.borderColor = "#ff9800";
+        guildBtn.style.color = "#e65100";
+      }
+    }
   }
-
-  // Cloud save timestamp
-  const cloudTime = localStorage.getItem("KaijuRPG_LastCloudSaved");
-  if (cloudTime) {
-    const readable = cloudTime; // already formatted when saved
-    const cloudEl = document.getElementById("dashboard-last-cloud");
-    if (cloudEl) cloudEl.textContent = readable;
-  }
-
-}
-
 
   function calculatePowerLevel(equip = equipment) {
     let power = 0;
@@ -1169,10 +1048,6 @@
   
   function startAction(name) {
     if (currentAction) return;
-    if (energy < 1) {
-      logHuntMessage("⚠️ You're too exhausted to perform any actions!");
-      return;
-    }
 
     // Pre-check: Green Potion needs herbs
     if (name === "Green Potion") {
@@ -1252,61 +1127,46 @@
   }
 
 
-  function runActionLoop() {
-    if (!currentAction) return;
+    function runActionLoop() {
+      if (!currentAction) return;
 
-    let progress = 0;
-    let remaining = Math.ceil(actionDuration / 1000);
-    const bar = document.getElementById("action-progress-bar");
-    const mobileActionLabel = document.getElementById("mobile-current-action-label");
+      let progress = 0;
+      const bar = document.getElementById("action-progress-bar");
 
-    if (mobileActionLabel) {
-      mobileActionLabel.textContent = `${currentAction} (${remaining}s left)`;
-    }
-
-    const interval = setInterval(() => {
-      if (!currentAction) {
-        clearInterval(interval);
-        if (bar) bar.style.width = "0%";
-        if (mobileActionLabel) mobileActionLabel.textContent = "Idle";
-        return;
-      }
-
-      progress += 100 / (actionDuration / 100);
-      if (bar) bar.style.width = progress + "%";
-
-      // ✅ Update mobile countdown
-      if (mobileActionLabel && currentAction) {
-        const secondsLeft = Math.ceil((1 - progress / 100) * actionDuration / 1000);
-        mobileActionLabel.textContent = `${currentAction} (${secondsLeft}s left)`;
-      }
-
-      if (progress >= 100) {
-        clearInterval(interval);
-        completeAction(currentAction);
-
-        if (!canContinueAction(currentAction)) {
-          stopAction();
+      const interval = setInterval(() => {
+        // Stop early if action was canceled
+        if (!currentAction) {
+          clearInterval(interval);
+          bar.style.width = "0%";
           return;
         }
 
-        // Reset before next loop
-        progress = 0;
-        if (bar) bar.style.width = "0%";
-        setTimeout(runActionLoop, 0);
-      }
-    }, 100);
-  }
+        progress += 100 / (actionDuration / 100);
+        bar.style.width = progress + "%";
 
+        if (progress >= 100) {
+          clearInterval(interval);
+          completeAction(currentAction);
+
+          if (!canContinueAction(currentAction)) {
+            stopAction();
+            return;
+          }
+
+          // ✅ Reset before next loop
+          progress = 0;
+          bar.style.width = "0%";
+
+          setTimeout(runActionLoop, 0);
+        }
+      }, 100);
+    }
 
   function stopAction() {
     currentAction = null;
     document.getElementById("current-action").textContent = "Idle";
     document.getElementById("action-progress-bar").style.width = "0%";
     if (isRecharging) return; // ✅ Do nothing while recharging
-
-    const mobileActionLabel = document.getElementById("mobile-current-action-label");
-    if (mobileActionLabel) mobileActionLabel.textContent = "Idle";
   }
 
   function completeAction(name) {
@@ -1611,73 +1471,47 @@
   function startRecharge() {
     if (isRecharging || energy >= 100) return;
 
+    // ✅ Stop any active action first
     stopAction();
     currentAction = null;
+
     isRecharging = true;
-
-    const rechargeButton = document.getElementById("recharge-button");
-    if (rechargeButton) {
-      rechargeButton.disabled = true;
-      rechargeButton.classList.add("recharging");
-    }
-
-    const stopButton = document.getElementById("stop-button");
-    if (stopButton) stopButton.disabled = true;
-
+    document.getElementById("recharge-button").disabled = true;
+    document.getElementById("recharge-button").classList.add("recharging");
+    document.getElementById("stop-button").disabled = true;
     document.getElementById("evac-overlay").style.display = "block";
     document.body.classList.add("evac-disabled");
 
-    const actionBar = document.getElementById("action-progress-bar");
-    const mobileActionLabel = document.getElementById("mobile-current-action-label");
-    const desktopActionLabel = document.getElementById("current-action"); // ✅ add this line
+    rechargeProgress = 0;
 
-    let rechargeProgress = 0;
-    const intervalTime = 100;
-    const totalDuration = 30000;
-    const increment = 100 / (totalDuration / intervalTime);
-
-    // ✅ Initial label
-    let secondsLeft = Math.ceil(totalDuration / 1000);
-    if (mobileActionLabel) {
-      mobileActionLabel.textContent = `Recharging... (${secondsLeft}s left)`;
-    }
-    if (desktopActionLabel) {
-      desktopActionLabel.textContent = `Recharging... (${secondsLeft}s left)`;
-    }
+    // ✅ Show "Recharging..." in action panel
+    document.getElementById("current-action").textContent = "Recharging...";
+    const altBar = document.getElementById("action-progress-bar");
+    if (altBar) altBar.style.width = "0%";
 
     rechargeInterval = setInterval(() => {
-      rechargeProgress += increment;
-      if (actionBar) actionBar.style.width = rechargeProgress + "%";
+      rechargeProgress += 100 / (rechargeTime / 100);
 
-      secondsLeft = Math.ceil((1 - rechargeProgress / 100) * totalDuration / 1000);
-      if (mobileActionLabel) {
-        mobileActionLabel.textContent = `Recharging... (${secondsLeft}s left)`;
-      }
-      if (desktopActionLabel) {
-        desktopActionLabel.textContent = `Recharging... (${secondsLeft}s left)`;
-      }
+      const bar = document.getElementById("action-progress-bar");
+      if (bar) bar.style.width = rechargeProgress + "%";
 
       if (rechargeProgress >= 100) {
         clearInterval(rechargeInterval);
         energy = 100;
         isRecharging = false;
 
-        if (actionBar) actionBar.style.width = "0%";
-        if (desktopActionLabel) desktopActionLabel.textContent = "Idle"; // ✅ reset desktop
-        if (mobileActionLabel) mobileActionLabel.textContent = "Idle";   // ✅ reset mobile
-
-        if (rechargeButton) {
-          rechargeButton.disabled = false;
-          rechargeButton.classList.remove("recharging");
-        }
-        if (stopButton) stopButton.disabled = false;
-
+        // ✅ Reset UI
+        document.getElementById("action-progress-bar").style.width = "0%";
+        document.getElementById("current-action").textContent = "Idle";
+        document.getElementById("recharge-button").disabled = false;
+        document.getElementById("recharge-button").classList.remove("recharging");
+        document.getElementById("stop-button").disabled = false;
         document.getElementById("evac-overlay").style.display = "none";
         document.body.classList.remove("evac-disabled");
 
         updateStatus();
       }
-    }, intervalTime);
+    }, 100);
   }
 
   function useGreenPotion() {
@@ -2005,7 +1839,7 @@
 
     if (health <= 0) {
 	  currentMonster = null;
-	  // clearHuntLog();
+	  clearHuntLog();
 	  monsterHP = 0;
 	  document.getElementById("encounter-panel").style.display = "none";
 	  updateMonsterUI();
@@ -2015,8 +1849,7 @@
   }
   
   function logHuntMessage(message) {
-    const log = document.getElementById("hunt-log"); // desktop
-    const mobileLog = document.getElementById("mobile-hunt-log"); // mobile
+    const log = document.getElementById("hunt-log");
 
     const now = new Date();
     const timestamp = now.toLocaleTimeString([], {
@@ -2027,20 +1860,21 @@
 
     const entry = document.createElement("div");
     entry.innerHTML = `[${timestamp}] ${message}`;
+    log.appendChild(entry);
 
-    if (log) {
-      log.appendChild(entry.cloneNode(true));
-      while (log.children.length > 5) log.removeChild(log.firstChild);
-      log.scrollTop = log.scrollHeight;
+    // ✅ Keep only the last 5 log entries
+    while (log.children.length > 5) {
+      log.removeChild(log.firstChild);
     }
 
-    if (mobileLog) {
-      mobileLog.appendChild(entry.cloneNode(true));
-      while (mobileLog.children.length > 3) mobileLog.removeChild(mobileLog.firstChild);
-      mobileLog.scrollTop = mobileLog.scrollHeight;
-    }
+    log.scrollTop = log.scrollHeight;
   }
 
+  function clearHuntLog() {
+    const log = document.getElementById("hunt-log");
+    log.innerHTML = "";
+  }
+  
   function updateUsePotionButton() {
     const btn = document.getElementById("use-potion-btn");
 
@@ -2095,15 +1929,11 @@
     switchTab('game');
 
     isEvacuating = true;
-    document.getElementById("evac-overlay").style.display = "block";
-    document.body.classList.add("evac-disabled");
+	document.getElementById("evac-overlay").style.display = "block";
+    document.body.classList.add("evac-disabled"); // 👈 lock clicks globally
 
     currentAction = "Evacuating to safety";
-    const desktopLabel = document.getElementById("current-action");
-    const mobileLabel = document.getElementById("mobile-current-action-label");
-
-    if (desktopLabel) desktopLabel.textContent = currentAction;
-    if (mobileLabel) mobileLabel.textContent = `${currentAction} (30s left)`; // initial display
+    document.getElementById("current-action").textContent = currentAction;
 
     let progress = 0;
     const bar = document.getElementById("action-progress-bar");
@@ -2113,25 +1943,17 @@
 
     const evacInterval = setInterval(() => {
       progress += increment;
-      const secondsLeft = Math.ceil((1 - progress / 100) * (duration / 1000));
-
-      if (bar) bar.style.width = progress + "%";
-
-      // 🕒 Update both labels
-      if (mobileLabel) mobileLabel.textContent = `${currentAction} (${secondsLeft}s left)`;
-      if (desktopLabel) desktopLabel.textContent = `${currentAction} (${secondsLeft}s left)`;
+      bar.style.width = progress + "%";
 
       if (progress >= 100) {
         clearInterval(evacInterval);
         isEvacuating = false;
-
-        document.getElementById("evac-overlay").style.display = "none";
-        document.body.classList.remove("evac-disabled");
+		document.getElementById("evac-overlay").style.display = "none";
+        document.body.classList.remove("evac-disabled"); // 👈 re-enable
 
         currentAction = null;
-        if (desktopLabel) desktopLabel.textContent = "Idle";
-        if (mobileLabel) mobileLabel.textContent = "Idle";
-        if (bar) bar.style.width = "0%";
+        document.getElementById("current-action").textContent = "Idle";
+        bar.style.width = "0%";
 
         health = Math.min(10, maxHealth);
         logHuntMessage("✅ You have been revived with 10 HP.");
@@ -2139,7 +1961,7 @@
       }
     }, intervalTime);
   }
-
+  
   function assignGuildTask() {
     const hunterLevel = skills.hunter.level;
     const resultEl = document.getElementById("assignment-result");
@@ -2331,7 +2153,6 @@
 
     // ✅ Immediately clear countdown if full health at start
     const countdownEl = document.getElementById("regen-countdown");
-    const countdownMobileEl = document.getElementById("mobile-regen-countdown");
     if (countdownEl && health >= maxHealth) {
       countdownEl.textContent = "";
     }
@@ -2343,13 +2164,8 @@
         regenTimer--;
 
         const countdownEl = document.getElementById("regen-countdown");
-        const countdownMobileEl = document.getElementById("mobile-regen-countdown");
         if (countdownEl) {
           countdownEl.textContent = `(Next regen in ${regenTimer}s)`;
-        }
-
-        if (countdownMobileEl) {
-          countdownMobileEl.textContent = `(Next regen in ${regenTimer}s)`;
         }
 
         if (regenTimer <= 0) {
@@ -2372,7 +2188,6 @@
         if (countdownEl) {
           countdownEl.textContent = "";
         }
-        if (countdownMobileEl) {countdownMobileEl.textContent = "";}
 
         wasRegenActive = false;
       }
@@ -2564,7 +2379,6 @@ setInterval(positionActionPanel, 500); // optional safety net
       updateForgeLocks();
       updateUsePotionButton();
       startRegenLoop();
-      switchTab('game');
     }, 500); 
 
     // Real-time resize tracking: Reponsive Spacer
