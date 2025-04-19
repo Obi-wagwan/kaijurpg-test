@@ -2920,6 +2920,10 @@ setInterval(positionActionPanel, 500); // optional safety net
         updateEquipmentUI();
         updateUsePotionButton();
         updateForgeLocks();
+        updateAssignmentStatus();
+        renderCurrentAssignment();
+        safeAssignmentUpdate();
+
         for (let skill in skills) updateSkillUI(skill);
         renderInventory();
 
