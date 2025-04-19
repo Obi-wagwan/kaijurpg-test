@@ -2752,13 +2752,14 @@ setInterval(positionActionPanel, 500); // optional safety net
             health = data.health ?? health;
             money = data.money ?? money;
             currentAssignment = data.currentAssignment || null;
-            updateAssignmentStatus();
-            renderCurrentAssignment();
-            safeAssignmentUpdate();
+            
 
             slayerPoints = data.slayerPoints ?? slayerPoints;
 
             updateStatus();
+            updateAssignmentStatus();
+            renderCurrentAssignment();
+            safeAssignmentUpdate();
             updateEquipmentUI();
             updateUsePotionButton();
             updateForgeLocks();
