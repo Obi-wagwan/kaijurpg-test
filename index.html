@@ -1090,7 +1090,14 @@
   // Local save timestamp
   const localTime = localStorage.getItem("KaijuRPG_LastSaved");
   if (localTime) {
-    const readable = new Date(localTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const date = new Date(localTime);
+    const readable = date.toLocaleString([], {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
     const localEl = document.getElementById("dashboard-last-local");
     if (localEl) localEl.textContent = readable;
   }
@@ -1098,7 +1105,14 @@
   // Cloud save timestamp
   const cloudTime = localStorage.getItem("KaijuRPG_LastCloudSaved");
   if (cloudTime) {
-    const readable = cloudTime; // already formatted when saved
+    const date = new Date(cloudTime);
+    const readable = date.toLocaleString([], {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
     const cloudEl = document.getElementById("dashboard-last-cloud");
     if (cloudEl) cloudEl.textContent = readable;
   }
