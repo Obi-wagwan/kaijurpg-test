@@ -312,51 +312,6 @@
       justify-content: flex-start;
     }
 
-     /* mobile HUD CSS start */
-    #mobile-bottom-panel {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: #111;
-      padding: 8px;
-      font-size: 0.85em;
-      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.3);
-      z-index: 9999;
-      border-top: 2px solid #333;
-    }
-
-    .mobile-bar-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    #mobile-bottom-panel button {
-      flex: 1;
-      padding: 6px;
-      font-weight: bold;
-      border: 1px solid #666;
-      border-radius: 6px;
-      background: #222;
-      color: #f4f4f4;
-    }
-
-    /* Only show mobile layout on narrow screens */
-    @media (max-width: 720px) {
-      #mobile-bottom-panel {
-        display: block;
-      }
-      #bottom-hud,
-      #action-panel,
-      #activity-log {
-        display: none !important;
-      }
-    }
-    /* mobile HUD CSS end */
-
     /* When on mobile, HUD takes full width */
     @media (max-width: 1200px) {
       #bottom-hud {
@@ -684,31 +639,6 @@
     <div id="complete-task-wrapper" style="margin-top: 10px;">
       <button id="complete-task-btn" onclick="completeSlayerTask()" disabled>✅ Complete Task</button>
     </div>          
-  </div>
-</div>
-
-<!-- Mobile bottom HUD -->
-<div id="mobile-bottom-panel">
-  <div class="mobile-bar-row">
-    <span>💪 <span id="mobile-power-level">0</span></span>
-    <span>💰 $<span id="mobile-money">0.00</span></span>
-    <span>🎯 <span id="mobile-slayer-points">0</span></span>
-  </div>
-
-  <div class="mobile-bar-row">
-    ❤️ <span id="mobile-health">100</span>/<span id="mobile-max-health">100</span>
-    <div class="progress-container short"><div class="progress-bar red" id="mobile-health-bar"></div></div>
-  </div>
-
-  <div class="mobile-bar-row">
-    ⚡ <span id="mobile-energy">100</span>/100
-    <div class="progress-container short"><div class="progress-bar blue" id="mobile-energy-bar"></div></div>
-  </div>
-
-  <div class="mobile-bar-row">
-    <button onclick="switchTab('hunt')">Hunt</button>
-    <button onclick="switchTab('slayer')">Slayer</button>
-    <button onclick="startRecharge()" id="mobile-recharge-btn">Recharge</button>
   </div>
 </div>
 
@@ -1338,35 +1268,6 @@
 
     const powerEl = document.getElementById("power-level");
     if (powerEl) powerEl.textContent = calculatePowerLevel();
-
-    // Mobile only
-    const mobilePower = document.getElementById("mobile-power-level");
-      if (mobilePower) mobilePower.textContent = calculatePowerLevel();
-
-      const mobileMoney = document.getElementById("mobile-money");
-      if (mobileMoney) mobileMoney.textContent = money.toFixed(2);
-
-      const mobileSlayer = document.getElementById("mobile-slayer-points");
-      if (mobileSlayer) mobileSlayer.textContent = slayerPoints;
-
-      const mobileHealth = document.getElementById("mobile-health");
-      if (mobileHealth) mobileHealth.textContent = health;
-
-      const mobileMaxHealth = document.getElementById("mobile-max-health");
-      if (mobileMaxHealth) mobileMaxHealth.textContent = maxHealth;
-
-      const mobileHealthBar = document.getElementById("mobile-health-bar");
-      if (mobileHealthBar) mobileHealthBar.style.width = (health / maxHealth * 100) + "%";
-
-      const mobileEnergy = document.getElementById("mobile-energy");
-      if (mobileEnergy) mobileEnergy.textContent = energy;
-
-      const mobileEnergyBar = document.getElementById("mobile-energy-bar");
-      if (mobileEnergyBar) mobileEnergyBar.style.width = (energy / 100 * 100) + "%";
-
-      const mobileRechargeBtn = document.getElementById("mobile-recharge-btn");
-      if (mobileRechargeBtn) mobileRechargeBtn.disabled = energy >= 100 || isRecharging;
-    // mobile only end
 
     updateAssignmentStatus();
 
