@@ -2915,6 +2915,8 @@ setInterval(positionActionPanel, 500); // optional safety net
         health = data.health ?? health;
         money = data.money ?? money;
         slayerPoints = data.slayerPoints ?? slayerPoints;
+        currentAssignment = data.currentAssignment || null;
+
 
         updateStatus();
         updateEquipmentUI();
