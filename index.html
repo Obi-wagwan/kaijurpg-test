@@ -31,6 +31,8 @@
     .assignment-complete {color: #d4af37 !important; /* ✨ GOLD */ font-weight: bold;animation: pulse 1s ease-in-out infinite alternate;}
     #complete-task-btn:enabled {background-color: #d4af37; font-weight: bold; color: white;}
     #recharge-button:disabled {opacity: 0.5; cursor: not-allowed;}
+    #mobile-recharge-btn:disabled {opacity: 0.6; cursor: not-allowed;}
+
 
 
     /* CSS for stat labelling in Bottom HUD */
@@ -317,7 +319,11 @@
       display: none;
       position: fixed;
       bottom: 0;
+      left: 0;
       width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      box-sizing: border-box;
       background: #111;
       padding: 8px;
       font-size: 0.85em;
@@ -344,14 +350,43 @@
       color: #f4f4f4;
     }
 
+    .hud-mobile-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .hud-mobile-label {
+      flex: 1;
+      font-weight: bold;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .hud-stat-block {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-start; /* 👈 this is the key change */
+    }
+
+    .hud-mobile-bar {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+    }
+
     /* Only show mobile layout on narrow screens */
-    @media (max-width: 720px) {
+    @media (max-width: 768px) {
       #mobile-bottom-panel {
         display: block;
       }
       #bottom-hud,
       #action-panel,
-      #activity-log {
+      #hunt-log-container {
         display: none !important;
       }
     }
@@ -380,6 +415,14 @@
         left: 0;
         right: 0;
       }  
+
+      #mobile-health-bar {
+        background-color: #e74c3c; /* red */
+      }
+
+      #mobile-energy-bar {
+        background-color: #3498db; /* blue */
+      }
     }
 
     /* phone screen bottom panel adjustment start */
@@ -423,7 +466,7 @@
     /* phone screen bottom panel adjustment end */
 
     /* Stacking threshold for the columns in the Bottom HUD */
-    @media (max-width: 760px) {
+    @media (max-width: 500px) {
       .hud-2col {
         flex-direction: column; /* ✅ stack vertically */
         gap: 12px;
@@ -673,7 +716,7 @@
 
 <div class="tab-content" id="slayer-tab">
   <div class="panel">
-    <h3>🏹 Slayer Guild</h3>
+    <h3>🏛️&nbsp;Slayer Guild</h3>
     <p><strong>Guildmaster:</strong> "I've got just the task for someone of your strength..."</p>
     <button id="get-task-btn" onclick="assignGuildTask()">Get Assignment</button>
 
@@ -690,25 +733,43 @@
 <!-- Mobile bottom HUD -->
 <div id="mobile-bottom-panel">
   <div class="mobile-bar-row">
-    <span>💪 <span id="mobile-power-level">0</span></span>
-    <span>💰 $<span id="mobile-money">0.00</span></span>
-    <span>🎯 <span id="mobile-slayer-points">0</span></span>
+    <div class="hud-stat-block">
+      <span><span class="stat-label">💪 :</span> <span id="mobile-power-level">0</span></span>
+      <span>|</span>
+      <span><span class="stat-label">💰 :</span> $<span id="mobile-money">0.00</span></span>
+      <span>|</span>
+      <span><span class="stat-label">🎯 :</span> <span id="mobile-slayer-points">0</span></span>
+    </div>
+  </div>
+
+  <div class="hud-mobile-row">
+    <div class="hud-mobile-label">
+      ❤️ Health: <span id="mobile-hud-health">100</span>/<span id="mobile-hud-max-health">100</span>
+    </div>
+    <div class="hud-mobile-bar">
+      <div class="progress-container short">
+        <div class="progress-bar" id="mobile-hud-health-bar" style="background-color: #e74c3c;"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="hud-mobile-row">
+    <div class="hud-mobile-label">
+      ⚡ Energy: <span id="mobile-hud-energy">99</span>/100
+    </div>
+    <div class="hud-mobile-bar">
+      <div class="progress-container short">
+        <div class="progress-bar" id="mobile-hud-energy-bar" style="background-color: #3498db;"></div>
+      </div>
+    </div>
   </div>
 
   <div class="mobile-bar-row">
-    ❤️ <span id="mobile-health">100</span>/<span id="mobile-max-health">100</span>
-    <div class="progress-container short"><div class="progress-bar red" id="mobile-health-bar"></div></div>
-  </div>
-
-  <div class="mobile-bar-row">
-    ⚡ <span id="mobile-energy">100</span>/100
-    <div class="progress-container short"><div class="progress-bar blue" id="mobile-energy-bar"></div></div>
-  </div>
-
-  <div class="mobile-bar-row">
-    <button onclick="switchTab('hunt')">Hunt</button>
-    <button onclick="switchTab('slayer')">Slayer</button>
-    <button onclick="startRecharge()" id="mobile-recharge-btn">Recharge</button>
+    <button onclick="switchTab('hunt')">&nbsp;⚔️&nbsp;</button>
+    <button onclick="switchTab('slayer')">&nbsp;🏛️&nbsp;</button>
+    <button onclick="switchTab('gear')">&nbsp;🛡️&nbsp;</button>
+    <button onclick="startRecharge()" id="mobile-recharge-btn">&nbsp;⚡&nbsp;</button>
+    <button id="stop-button" onclick="stopAction()">&nbsp;🛑&nbsp;</button>
   </div>
 </div>
 
@@ -752,13 +813,13 @@
       </button>
 
       <div class="hud-buttons">
-        <button onclick="switchTab('hunt')">Hunt</button>
-        <button id="recharge-button" onclick="startRecharge()">Recharge Energy</button>
-        <button id="stop-button" onclick="stopAction()">Stop Action</button>
+        <button onclick="switchTab('hunt')">⚔️&nbsp;Hunt</button>
+        <button id="recharge-button" onclick="startRecharge()">⚡&nbsp;Recharge</button>
+        <button id="stop-button" onclick="stopAction()">🛑&nbsp;Stop Action</button>
       </div>
 
       <div class="hud-bottom-right">
-        <button onclick="switchTab('slayer')">Slayer Guild</button>
+        <button onclick="switchTab('slayer')">🏛️&nbsp;Slayer Guild</button>
         <div class="hud-assignment">
           <span class="stat-label">📜 Assignment:</span> <span id="hud-assignment">None</span>
         </div>        
@@ -1349,23 +1410,25 @@
       const mobileSlayer = document.getElementById("mobile-slayer-points");
       if (mobileSlayer) mobileSlayer.textContent = slayerPoints;
 
-      const mobileHealth = document.getElementById("mobile-health");
+      const mobileHealth = document.getElementById("mobile-hud-health");
       if (mobileHealth) mobileHealth.textContent = health;
 
-      const mobileMaxHealth = document.getElementById("mobile-max-health");
+      const mobileMaxHealth = document.getElementById("mobile-hud-max-health");
       if (mobileMaxHealth) mobileMaxHealth.textContent = maxHealth;
 
-      const mobileHealthBar = document.getElementById("mobile-health-bar");
+      const mobileHealthBar = document.getElementById("mobile-hud-health-bar");
       if (mobileHealthBar) mobileHealthBar.style.width = (health / maxHealth * 100) + "%";
 
-      const mobileEnergy = document.getElementById("mobile-energy");
+      const mobileEnergy = document.getElementById("mobile-hud-energy");
       if (mobileEnergy) mobileEnergy.textContent = energy;
 
-      const mobileEnergyBar = document.getElementById("mobile-energy-bar");
+      const mobileEnergyBar = document.getElementById("mobile-hud-energy-bar");
       if (mobileEnergyBar) mobileEnergyBar.style.width = (energy / 100 * 100) + "%";
 
       const mobileRechargeBtn = document.getElementById("mobile-recharge-btn");
-      if (mobileRechargeBtn) mobileRechargeBtn.disabled = energy >= 100 || isRecharging;
+      if (mobileRechargeBtn) {
+        mobileRechargeBtn.disabled = energy >= 100;
+      }
     // mobile only end
 
     updateAssignmentStatus();
